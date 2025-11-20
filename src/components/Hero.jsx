@@ -18,8 +18,14 @@ const fadeUp = {
 
 export default function Hero() {
   const baseUrl = useMemo(() => {
-    const raw = import.meta.env.VITE_BACKEND_URL || "";
-    return raw ? raw.replace(/\/$/, "") : "";
+    const candidates = [
+      import.meta.env.VITE_BACKEND_URL,
+      typeof window !== "undefined" ? window.__BACKEND_URL__ : undefined,
+      // Fallback to the running backend preview URL for this demo environment
+      "https://ta-01kah9xnk218whhdhhz9gk7ayk-8000.wo-inpyjmaafvr8kfjd4nrvjh0eo.w.modal.host"
+    ].filter(Boolean);
+    const raw = candidates[0] || "";
+    return raw ? String(raw).replace(/\/$/, "") : "";
   }, []);
 
   const navigate = useNavigate();
@@ -34,6 +40,15 @@ export default function Hero() {
 
   const validStart = name.trim().length >= 2 && phone.trim().length >= 8;
   const validOtp = otp.trim().length >= 4;
+
+  function toFriendlyNetworkError(err) {
+    if (!err) return "Something went wrong. Please try again.";
+    const msg = String(err.message || err);
+    if (msg.toLowerCase().includes("failed to fetch")) {
+      return "Network error while reaching the server. Please try again in a moment.";
+    }
+    return msg;
+  }
 
   async function handleStart(e) {
     e.preventDefault();
@@ -51,7 +66,7 @@ export default function Hero() {
       setDemoOtp(data.demo_otp || "");
       setStep("otp");
     } catch (err) {
-      setError(err?.message || "Something went wrong. Please try again.");
+      setError(toFriendlyNetworkError(err));
     } finally {
       setLoading(false);
     }
@@ -79,7 +94,7 @@ export default function Hero() {
       } catch {}
       navigate("/dashboard");
     } catch (err) {
-      setError(err?.message || "Verification failed. Try again.");
+      setError(toFriendlyNetworkError(err));
     } finally {
       setLoading(false);
     }
