@@ -57,33 +57,67 @@ function VisualAnalytics() {
 }
 
 function VisualMentor() {
+  // New mentorship visual: guided path from student to mentor with progress ticks
+  const dots = [
+    { x: 6, y: 20 },
+    { x: 10, y: 17 },
+    { x: 14, y: 14 },
+    { x: 18, y: 11 },
+    { x: 22, y: 9 }
+  ];
   return (
-    <div className="relative h-12 w-12 rounded-xl bg-cyan-50 ring-1 ring-white/60 shadow shadow-cyan-200/70 p-1.5">
-      {/* Chat bubbles */}
-      <div className="relative h-full">
-        <motion.div
-          initial={{ x: -6, opacity: 0.8 }}
-          animate={{ x: [-6, 0, -2, 0], opacity: [0.8, 1, 1, 1] }}
-          transition={{ duration: 2, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
-          className="max-w-[80%] rounded-md bg-white ring-1 ring-slate-200 px-1.5 py-1 text-[9px] text-slate-700 shadow-sm"
-        >
-          Got stuck at KCL…
-        </motion.div>
-        <motion.div
-          initial={{ x: 6, opacity: 0.8 }}
-          animate={{ x: [6, 0, 2, 0], opacity: [0.8, 1, 1, 1] }}
-          transition={{ duration: 2, delay: 0.4, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
-          className="mt-1 ml-auto max-w-[80%] rounded-md bg-sky-100 text-sky-800 ring-1 ring-white px-1.5 py-1 text-[9px] shadow-sm"
-        >
-          Try nodal method →
-        </motion.div>
-        {/* Typing dots */}
-        <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 flex gap-1">
-          {[0, 1, 2].map((i) => (
-            <motion.span key={i} className="h-1 w-1 rounded-full bg-sky-400" animate={{ y: [0, -2, 0] }} transition={{ duration: 0.8, delay: i * 0.12, repeat: Infinity }} />
-          ))}
-        </div>
-      </div>
+    <div className="relative h-12 w-12 rounded-xl bg-cyan-50 ring-1 ring-white/60 shadow shadow-cyan-200/70">
+      {/* Badge */}
+      <motion.div
+        className="absolute left-1.5 top-1.5 h-2.5 w-2.5 rotate-45 rounded-[4px] bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)]"
+        animate={{ scale: [1, 1.08, 1] }}
+        transition={{ duration: 1.4, repeat: Infinity }}
+      />
+
+      {/* Student avatar */}
+      <div className="absolute bottom-1 left-1 h-5 w-5 rounded-full bg-sky-400 ring-2 ring-white shadow" />
+      {/* Mentor avatar */}
+      <div className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-emerald-400 ring-2 ring-white shadow" />
+
+      {/* Dotted guidance trail */}
+      {dots.map((p, i) => (
+        <span
+          key={i}
+          className="absolute h-1 w-1 rounded-full bg-cyan-400/60"
+          style={{ left: p.x, top: p.y, opacity: 0.7 - i * 0.1 }}
+        />
+      ))}
+
+      {/* Moving guidance dot */}
+      <motion.span
+        className="absolute h-2 w-2 rounded-full bg-cyan-500 shadow"
+        initial={{ x: 4, y: 22 }}
+        animate={{ x: [4, 9, 14, 19, 24], y: [22, 18, 14, 11, 8] }}
+        transition={{ duration: 2.2, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+      />
+
+      {/* Progress ticks near mentor */}
+      <motion.div
+        className="absolute right-1.5 top-6 flex flex-col gap-0.5"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: {},
+          show: { transition: { staggerChildren: 0.18, repeat: Infinity, repeatType: "mirror", repeatDelay: 0.6 } }
+        }}
+      >
+        {[0, 1, 2].map((i) => (
+          <motion.span
+            key={i}
+            className="h-1.5 w-3 rounded-full bg-emerald-400/80"
+            variants={{
+              hidden: { opacity: 0, width: 0 },
+              show: { opacity: 1, width: i === 1 ? 10 : i === 2 ? 6 : 14 }
+            }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          />
+        ))}
+      </motion.div>
     </div>
   );
 }
