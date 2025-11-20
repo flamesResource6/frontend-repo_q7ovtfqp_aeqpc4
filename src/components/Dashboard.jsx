@@ -224,8 +224,8 @@ export default function Dashboard({ user, onLogout }) {
         <div className="relative">
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-300/50 to-transparent" />
         </div>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="w-full h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3 w-full">
             <div className="relative h-8 w-8 rounded-md bg-white ring-1 ring-slate-200 grid place-items-center shadow-sm">
               <Layers className="h-4 w-4 text-sky-700" />
               <span className="pointer-events-none absolute -inset-1 rounded-md bg-sky-400/10 blur-md" />
@@ -245,7 +245,7 @@ export default function Dashboard({ user, onLogout }) {
               </select>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <button className="h-8 w-8 rounded-md bg-white ring-1 ring-slate-200 text-slate-600 hover:bg-slate-50 grid place-items-center">
               <Bell className="h-4 w-4" />
             </button>
@@ -263,7 +263,7 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8 grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)_300px] gap-4 lg:gap-6">
+      <div className="w-full py-6 lg:py-8 grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)_300px] gap-4 lg:gap-6">
         {/* Left Sidebar (minimal) */}
         <aside className="hidden lg:block">
           <nav className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-2 shadow-sm overflow-hidden">
