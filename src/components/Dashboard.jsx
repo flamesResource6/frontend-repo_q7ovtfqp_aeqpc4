@@ -326,48 +326,6 @@ export default function Dashboard({ user, onLogout }) {
               </button>
             ))}
           </nav>
-
-          {/* Personalize card */}
-          <div className="mt-3 rounded-2xl bg-gradient-to-br from-sky-50 to-white ring-1 ring-sky-100 p-3">
-            <div className="text-[12px] font-semibold text-slate-800">Personalize</div>
-            <div className="mt-2">
-              <div className="text-[11px] text-slate-600 mb-1">Class</div>
-              <div className="flex flex-wrap gap-2">
-                {CLASS_LEVELS.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setClassLevel(c.id)}
-                    className={`px-2.5 py-1.5 rounded-lg text-[12px] ring-1 transition ${
-                      classLevel === c.id
-                        ? "bg-sky-600 text-white ring-sky-600"
-                        : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"
-                    }`}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <div className="text-[11px] text-slate-600 mb-1">Your Exams</div>
-              <div className="flex flex-wrap gap-2">
-                {EXAMS.map((ex) => (
-                  <button
-                    key={ex.id}
-                    onClick={() => togglePreferredExam(ex.id)}
-                    className={`px-2.5 py-1.5 rounded-lg text-[12px] ring-1 transition ${
-                      preferredExams.includes(ex.id)
-                        ? "bg-emerald-600 text-white ring-emerald-600"
-                        : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"
-                    }`}
-                  >
-                    {ex.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
         </aside>
 
         {/* Main Content */}
