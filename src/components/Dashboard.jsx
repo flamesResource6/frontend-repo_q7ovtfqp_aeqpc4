@@ -14,7 +14,6 @@ import {
   Library,
   GraduationCap,
   Info,
-  Sparkles,
   Bell,
   Calendar,
   Trophy,
@@ -26,7 +25,6 @@ import {
   Flame,
   Target,
   Award,
-  Clock,
   Star,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -60,8 +58,14 @@ export default function Dashboard({ user, onLogout }) {
 
   // UI
   const [showExamPicker, setShowExamPicker] = useState(false);
-  const [nextActionMode, setNextActionMode] = useState(null);
   const [copied, setCopied] = useState(false);
+
+  // New modal state for year/scope selection
+  const [flowModalOpen, setFlowModalOpen] = useState(false);
+  const [flowType, setFlowType] = useState(/** @type {"mock"|"pyq"|null} */(null));
+  const [flowStep, setFlowStep] = useState(1); // 1: years, 2: scope
+  const [years, setYears] = useState(/** @type {1|3|5|10|null} */(null));
+  const [scope, setScope] = useState(/** @type {"full"|"math"|"physics"|"chemistry"|null} */(null));
 
   // Load prefs
   useEffect(() => {
@@ -153,34 +157,38 @@ export default function Dashboard({ user, onLogout }) {
     { id: "logout", label: "Logout", icon: LogOut, action: () => onLogout?.() },
   ];
 
-  // Actions
-  function startPractice() {
+  // Helpers
+  function openFlow(type) {
     if (!selectedExam) {
-      setNextActionMode("pyq");
       setShowExamPicker(true);
       return;
     }
-    navigate(`/practice?exam=${encodeURIComponent(selectedExam)}`);
+    setMode(type);
+    setFlowType(type);
+    setYears(null);
+    setScope(null);
+    setFlowStep(1);
+    setFlowModalOpen(true);
   }
-  function startMockConfig() {
-    if (!selectedExam) {
-      setNextActionMode("mock");
-      setShowExamPicker(true);
-      return;
+
+  function goToSelection(selScope) {
+    if (!selectedExam || !flowType || !years) return;
+    const q = new URLSearchParams({ exam: selectedExam, years: String(years), scope: selScope }).toString();
+    if (flowType === "mock") {
+      navigate(`/mock/config?${q}`);
+    } else {
+      navigate(`/practice?${q}`);
     }
-    navigate(`/mock/config?exam=${encodeURIComponent(selectedExam)}`);
+    closeFlow();
   }
-  function onExamPickAndProceed(examId) {
-    setSelectedExam(examId);
-    setShowExamPicker(false);
-    if (nextActionMode === "pyq") navigate(`/practice?exam=${encodeURIComponent(examId)}`);
-    if (nextActionMode === "mock") navigate(`/mock/config?exam=${encodeURIComponent(examId)}`);
-    setNextActionMode(null);
+
+  function closeFlow() {
+    setFlowModalOpen(false);
+    setFlowType(null);
+    setFlowStep(1);
+    setYears(null);
+    setScope(null);
   }
-  function openMentorForm() {
-    window.open("https://airtable.com", "_blank");
-  }
-  function openSEAT() { window.open("https://seat.examsaathi.com", "_blank"); }
 
   function copyInvite() {
     try {
@@ -262,7 +270,7 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </div>
 
-      {/* Hero band */}
+      {/* Hero and layout */}
       <div className="w-full">
         <div className="relative overflow-hidden">
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-64 w-[1100px] rounded-full bg-gradient-to-r from-sky-300/30 via-emerald-300/30 to-transparent blur-3xl" />
@@ -310,29 +318,39 @@ export default function Dashboard({ user, onLogout }) {
 
               {/* Center column */}
               <main className="space-y-6 lg:space-y-8">
-                {/* Welcome + mode switch */}
+                {/* Top selection card */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute -right-10 -top-10 h-36 w-36 bg-sky-300/10 rounded-full blur-2xl" />
                   <div className="absolute -left-10 -bottom-10 h-36 w-36 bg-emerald-300/10 rounded-full blur-2xl" />
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 relative z-10">
+                  <div className="relative z-10 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] gap-4 md:items-end">
                     <div>
                       <div className="text-[14px] sm:text-[15px] font-semibold text-slate-900">Welcome back, {user?.name || "Student"}</div>
-                      <div className="mt-0.5 text-[12px] text-slate-500">{examLabel || "Select your exam"} • {CLASS_LEVELS.find((c) => c.id === classLevel)?.label}</div>
+                      <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
+                        <label className="text-[12px] text-slate-600">Select exam</label>
+                        <select
+                          value={selectedExam || ""}
+                          onChange={(e) => setSelectedExam(e.target.value)}
+                          className="text-[13px] rounded-md ring-1 ring-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 w-full sm:w-56"
+                        >
+                          {!selectedExam ? <option value="" disabled>Select exam</option> : null}
+                          {EXAMS.map((ex) => (
+                            <option key={ex.id} value={ex.id}>{ex.label}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1">
-                      {[
-                        { id: "pyq", label: "PYQs" },
-                        { id: "mock", label: "Mock Tests" },
-                      ].map((m) => (
-                        <button key={m.id} onClick={() => setMode(m.id)} className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition ${mode===m.id? 'bg-white ring-1 ring-slate-200 text-slate-900':'text-slate-600 hover:text-slate-900'}`}>
-                          {m.label}
-                        </button>
-                      ))}
+                    <div className="flex gap-2">
+                      <button onClick={() => openFlow('mock')} className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-sm w-full md:w-auto">
+                        <FileText className="h-4 w-4" /> Mock Papers
+                      </button>
+                      <button onClick={() => openFlow('pyq')} className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold bg-white ring-1 ring-slate-200 text-slate-900 hover:bg-sky-50 shadow-sm w-full md:w-auto">
+                        <BookOpen className="h-4 w-4" /> Previous Year Questions
+                      </button>
                     </div>
                   </div>
                 </motion.div>
 
-                {/* KPI row */}
+                {/* KPI row (kept compact) */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                   {[
                     { title: 'Accuracy', value: '82%', sub: '+4% this week', icon: Target, tint: 'from-sky-200/30' },
@@ -356,43 +374,14 @@ export default function Dashboard({ user, onLogout }) {
                   ))}
                 </motion.div>
 
-                {/* Study planner timeline */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
-                  <div className="absolute -left-10 -top-10 h-36 w-36 bg-sky-300/10 rounded-full blur-2xl" />
-                  <div className="flex items-center justify-between relative z-10">
-                    <h2 className="text-[15px] font-semibold text-slate-900">Today's Plan</h2>
-                    <div className="text-[12px] text-slate-600 flex items-center gap-2"><Clock className="h-4 w-4"/> 3 tasks</div>
-                  </div>
-                  <div className="mt-4 space-y-3 relative z-10">
-                    {[
-                      { title: 'Limits & Continuity – PYQs', meta: '30 questions • 45 min', progress: 65, accent: 'from-sky-600 to-emerald-600' },
-                      { title: 'Kinematics – Mock Section', meta: 'Chapter-wise • 30 min', progress: 40, accent: 'from-sky-600 to-emerald-600' },
-                      { title: 'Chemistry NCERT Rev', meta: 'Quick revision • 20 min', progress: 20, accent: 'from-sky-600 to-emerald-600' },
-                    ].map((t, i) => (
-                      <div key={i} className="rounded-xl ring-1 ring-slate-200 bg-white p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-[14px] font-medium text-slate-900">{t.title}</div>
-                            <div className="text-[11px] text-slate-500">{t.meta}</div>
-                          </div>
-                          <button onClick={i===0? () => navigate(`/practice?exam=${encodeURIComponent(selectedExam || 'jee-main')}&chapter=${encodeURIComponent('Limits & Continuity')}`) : startMockConfig} className="px-3 py-1.5 rounded-md text-[12px] font-medium bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start</button>
-                        </div>
-                        <div className="mt-3 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                          <div className={`h-full bg-gradient-to-r ${t.accent}`} style={{ width: `${t.progress}%` }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-
-                {/* Practice section with subjects */}
+                {/* Practice section with subjects (kept) */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(400px_120px_at_20%_-10%, black, transparent)" }}>
                     <div className="absolute left-0 top-0 h-40 w-64 bg-gradient-to-br from-sky-200/40 to-emerald-200/30 blur-2xl" />
                   </div>
                   <div className="flex items-center justify-between relative z-10">
                     <h2 className="text-[15px] font-semibold text-slate-900">Start Solving PYQs</h2>
-                    <button onClick={startPractice} className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[12px] font-medium hover:from-sky-700 hover:to-emerald-700 shadow-sm">
+                    <button onClick={() => openFlow('pyq')} className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[12px] font-medium hover:from-sky-700 hover:to-emerald-700 shadow-sm">
                       Start Practicing <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
@@ -435,7 +424,7 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
 
                   {/* Mobile CTA */}
-                  <button onClick={startPractice} className="mt-4 sm:hidden inline-flex items-center justify-center w-full gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[13px] font-semibold shadow-sm">
+                  <button onClick={() => openFlow('pyq')} className="mt-4 sm:hidden inline-flex items-center justify-center w-full gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[13px] font-semibold shadow-sm">
                     Start Practicing
                     <ChevronRight className="h-4 w-4" />
                   </button>
@@ -452,7 +441,7 @@ export default function Dashboard({ user, onLogout }) {
                       <div className="flex-1">
                         <div className="text-[15px] font-semibold text-slate-900">Full-Length Mock Tests</div>
                         <div className="mt-1 text-[12px] text-slate-600">Auto-graded, exam-pattern based tests</div>
-                        <button onClick={startMockConfig} className="mt-3 px-3 py-1.5 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
+                        <button onClick={() => openFlow('mock')} className="mt-3 px-3 py-1.5 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
                       </div>
                     </div>
                   </div>
@@ -465,7 +454,7 @@ export default function Dashboard({ user, onLogout }) {
                       <div className="flex-1">
                         <div className="text-[15px] font-semibold text-slate-900">Chapter-wise Practice</div>
                         <div className="mt-1 text-[12px] text-slate-600">Create focused tests by chapter</div>
-                        <button onClick={startMockConfig} className="mt-3 px-3 py-1.5 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
+                        <button onClick={() => openFlow('mock')} className="mt-3 px-3 py-1.5 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
                       </div>
                     </div>
                   </div>
@@ -478,7 +467,7 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                   <div className="flex items-center justify-between relative z-10">
                     <h3 className="text-[15px] font-semibold text-slate-900">Talk to a mentor 1-on-1</h3>
-                    <button onClick={openMentorForm} className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[12px] font-medium hover:from-sky-700 hover:to-emerald-700 shadow-sm">
+                    <button onClick={() => window.open('https://airtable.com','_blank')} className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[12px] font-medium hover:from-sky-700 hover:to-emerald-700 shadow-sm">
                       Book a Mentor Session <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
@@ -494,12 +483,12 @@ export default function Dashboard({ user, onLogout }) {
                               <div className="text-[11px] text-slate-500">AIR 142 · IIT Bombay</div>
                             </div>
                           </div>
-                          <button onClick={openMentorForm} className="relative z-10 mt-3 w-full px-3 py-1.5 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Book Session</button>
+                          <button onClick={() => window.open('https://airtable.com','_blank')} className="relative z-10 mt-3 w-full px-3 py-1.5 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Book Session</button>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <button onClick={openMentorForm} className="mt-4 sm:hidden inline-flex items-center justify-center w-full gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[13px] font-semibold shadow-sm">
+                  <button onClick={() => window.open('https://airtable.com','_blank')} className="mt-4 sm:hidden inline-flex items-center justify-center w-full gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[13px] font-semibold shadow-sm">
                     Book a Mentor Session <ChevronRight className="h-4 w-4" />
                   </button>
                 </motion.div>
@@ -521,7 +510,7 @@ export default function Dashboard({ user, onLogout }) {
                         <div key={i} className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
                           <div className="text-[13px] font-medium text-slate-900">{e.t}</div>
                           <div className="text-[11px] text-slate-500">{e.d}</div>
-                          <button onClick={i===0? startMockConfig : () => {}} className="mt-2 px-3 py-1.5 rounded-md text-[12px] font-medium bg-gradient-to-r from-sky-600 to-emerald-600 text-white">{e.cta}</button>
+                          <button onClick={i===0? () => openFlow('mock') : () => {}} className="mt-2 px-3 py-1.5 rounded-md text-[12px] font-medium bg-gradient-to-r from-sky-600 to-emerald-600 text-white">{e.cta}</button>
                         </div>
                       ))}
                     </div>
@@ -555,7 +544,7 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden">
                     <div className="absolute -right-8 -top-8 h-20 w-20 bg-sky-300/10 rounded-full blur-xl" />
                     <div className="flex items-center justify-between relative z-10">
-                      <div className="text-[13px] font-semibold text-slate-900 flex items-center gap-2"><Trophy className="h-4 w-4 text-emerald-600"/> Daily goal</div>
+                      <div className="text-[13px] font-semibold text-slate-900">Daily goal</div>
                       <Star className="h-4 w-4 text-slate-600" />
                     </div>
                     <div className="mt-2 text-[12px] text-slate-600 relative z-10">Complete 40 practice questions</div>
@@ -599,15 +588,15 @@ export default function Dashboard({ user, onLogout }) {
             <Home className="h-5 w-5" />
             <span>Home</span>
           </button>
-          <button onClick={() => setMode('pyq')} className="py-2.5 text-[11px] flex flex-col items-center text-slate-700">
+          <button onClick={() => openFlow('pyq')} className="py-2.5 text-[11px] flex flex-col items-center text-slate-700">
             <BookOpen className="h-5 w-5" />
             <span>PYQs</span>
           </button>
-          <button onClick={() => setMode('mock')} className="py-2.5 text-[11px] flex flex-col items-center text-slate-700">
+          <button onClick={() => openFlow('mock')} className="py-2.5 text-[11px] flex flex-col items-center text-slate-700">
             <FileText className="h-5 w-5" />
             <span>Tests</span>
           </button>
-          <button onClick={openMentorForm} className="py-2.5 text-[11px] flex flex-col items-center text-slate-700">
+          <button onClick={() => window.open('https://airtable.com','_blank')} className="py-2.5 text-[11px] flex flex-col items-center text-slate-700">
             <User className="h-5 w-5" />
             <span>Mentor</span>
           </button>
@@ -618,7 +607,7 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </div>
 
-      {/* Exam Picker Modal */}
+      {/* Exam Picker Modal (if exam not selected) */}
       <AnimatePresence>
         {showExamPicker && (
           <motion.div
@@ -642,12 +631,70 @@ export default function Dashboard({ user, onLogout }) {
               </div>
               <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {EXAMS.map((ex) => (
-                  <button key={ex.id} onClick={() => onExamPickAndProceed(ex.id)} className="rounded-xl bg-white ring-1 ring-slate-200 hover:bg-sky-50/70 px-3 py-3 text-left">
+                  <button key={ex.id} onClick={() => { setSelectedExam(ex.id); setShowExamPicker(false); }} className="rounded-xl bg-white ring-1 ring-slate-200 hover:bg-sky-50/70 px-3 py-3 text-left">
                     <div className="text-[13px] font-semibold text-slate-900">{ex.label}</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">{nextActionMode === 'pyq' ? 'PYQ practice' : 'Mock config'}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">Select to proceed</div>
                   </button>
                 ))}
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Flow Modal: step 1 (years) -> step 2 (scope) */}
+      <AnimatePresence>
+        {flowModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm grid place-items-center p-4"
+          >
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-md rounded-2xl bg-white ring-1 ring-slate-200 shadow-xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                <div className="text-sm font-semibold text-slate-900">{flowType === 'mock' ? 'Mock Papers' : 'Previous Year Questions'}</div>
+                <button onClick={closeFlow} className="h-8 w-8 grid place-items-center rounded-md hover:bg-slate-50">
+                  <X className="h-4 w-4 text-slate-500" />
+                </button>
+              </div>
+
+              {/* Step content */}
+              {flowStep === 1 && (
+                <div className="p-4">
+                  <div className="text-[13px] text-slate-700 font-medium">Select year range</div>
+                  <div className="mt-3 grid grid-cols-4 gap-2">
+                    {[1,3,5,10].map((y) => (
+                      <button key={y} onClick={() => { setYears(y); setFlowStep(2); }} className={`px-3 py-2 rounded-lg text-[13px] ring-1 transition ${years===y? 'bg-slate-900 text-white ring-slate-900':'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}>
+                        {y} yr{y>1?'s':''}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {flowStep === 2 && (
+                <div className="p-4">
+                  <div className="text-[13px] text-slate-700 font-medium">Choose scope</div>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {[{id:'full',label:'Full Paper'},{id:'math',label:'Maths'},{id:'physics',label:'Physics'},{id:'chemistry',label:'Chemistry'}].map((opt) => (
+                      <button key={opt.id} onClick={() => goToSelection(opt.id)} className="px-3 py-2 rounded-lg text-[13px] ring-1 bg-white text-slate-800 ring-slate-200 hover:bg-sky-50">
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center justify-between text-[12px] text-slate-600">
+                    <button onClick={() => setFlowStep(1)} className="underline decoration-slate-300 hover:text-slate-900">Back</button>
+                    <div className="text-slate-500">{years} yr{years && years>1?'s':''} selected</div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
