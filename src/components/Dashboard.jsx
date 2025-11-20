@@ -52,7 +52,7 @@ export default function Dashboard({ user, onLogout }) {
 
   // Flow state
   const [selectedExam, setSelectedExam] = useState(null);
-  const [mode, setMode] = useState(null); // "pyq" | "mock"
+  const [mode, setMode] = useState("pyq"); // default to PYQ
 
   // UI state
   const [showExamPicker, setShowExamPicker] = useState(false);
@@ -86,7 +86,14 @@ export default function Dashboard({ user, onLogout }) {
     const hashExam = decodeURIComponent(window.location.hash.replace("#", ""));
     if (hashExam && EXAMS.some((e) => e.id === hashExam)) {
       setSelectedExam(hashExam);
+    } else {
+      // default select first preferred exam if available
+      if (!selectedExam) {
+        const firstPref = preferredExams[0] || EXAMS[0].id;
+        setSelectedExam(firstPref);
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -99,7 +106,7 @@ export default function Dashboard({ user, onLogout }) {
   );
 
   const sidebarItems = [
-    { id: "home", label: "Dashboard", icon: Home, action: () => { setSelectedExam(null); setMode(null); } },
+    { id: "home", label: "Dashboard", icon: Home, action: () => { /* keep current view */ } },
     { id: "pyqs", label: "PYQs", icon: Library, action: () => setMode("pyq") },
     { id: "mocks", label: "Mock Tests", icon: FileText, action: () => setMode("mock") },
     { id: "mentor", label: "Mentor Connect", icon: User, action: () => window.open("https://airtable.com", "_blank") },
@@ -118,12 +125,6 @@ export default function Dashboard({ user, onLogout }) {
     setPreferredExams((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
-  }
-
-  function goToBuilder(targetMode) {
-    setMode(targetMode);
-    const el = document.getElementById("builder-stepper");
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   // Centralized start handlers
@@ -335,6 +336,64 @@ export default function Dashboard({ user, onLogout }) {
             </div>
           </div>
 
+          {/* Top controls: Exam dropdown + Tabs + Primary CTA */}
+          <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-3 mb-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              {/* Exam dropdown */}
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] text-slate-600">Target exam</span>
+                <select
+                  value={selectedExam || ""}
+                  onChange={(e) => setSelectedExam(e.target.value)}
+                  className="text-[13px] rounded-lg ring-1 ring-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                >
+                  {!selectedExam ? <option value="" disabled>Select exam</option> : null}
+                  {EXAMS.map((ex) => (
+                    <option key={ex.id} value={ex.id}>{ex.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex items-center rounded-xl ring-1 ring-slate-200 bg-slate-50 overflow-hidden">
+                <button
+                  onClick={() => setMode("pyq")}
+                  className={`px-3 py-2 text-[13px] font-medium transition ${
+                    mode === 'pyq' ? 'bg-white text-emerald-700 ring-1 ring-emerald-200' : 'text-slate-600 hover:text-slate-800'
+                  }`}
+                >
+                  Previous Year Papers
+                </button>
+                <button
+                  onClick={() => setMode("mock")}
+                  className={`px-3 py-2 text-[13px] font-medium transition ${
+                    mode === 'mock' ? 'bg-white text-sky-700 ring-1 ring-sky-200' : 'text-slate-600 hover:text-slate-800'
+                  }`}
+                >
+                  Mock Papers
+                </button>
+              </div>
+
+              {/* Primary CTA */}
+              <div className="flex items-center">
+                {mode === "pyq" ? (
+                  <button onClick={startPractice} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-semibold shadow-sm shadow-emerald-200">
+                    Start Practicing
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <button onClick={startMockConfig} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-[13px] font-semibold shadow-sm shadow-sky-200">
+                    Start Test
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+            {selectedExam ? (
+              <div className="mt-2 text-[12px] text-slate-500">Selected: {examLabel} · {mode === 'pyq' ? 'PYQ' : 'Mock Papers'}</div>
+            ) : null}
+          </div>
+
           {/* 1. PYQs Module - Hero */}
           <div className="rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-white ring-1 ring-emerald-100 p-5 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -470,93 +529,6 @@ export default function Dashboard({ user, onLogout }) {
               </div>
             </div>
           </div>
-
-          {/* Builder / Stepper anchor */}
-          <div id="builder-stepper" />
-
-          {/* Exam selector */}
-          <AnimatePresence mode="wait">
-            {!selectedExam && (
-              <motion.div
-                key="exam-select"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.25 }}
-                className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3"
-              >
-                {EXAMS.map((ex) => (
-                  <button
-                    key={ex.id}
-                    onClick={() => setSelectedExam(ex.id)}
-                    className="group rounded-xl bg-white ring-1 ring-slate-200 hover:ring-sky-300 shadow-sm px-3 py-3 text-left transition"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-lg bg-sky-100 ring-1 ring-sky-200 flex items-center justify-center">
-                        <BarChart3 className="h-4 w-4 text-sky-600" />
-                      </div>
-                      <div className="text-[13px] font-semibold text-slate-900 leading-snug">
-                        {ex.label}
-                      </div>
-                    </div>
-                    <div className="mt-1 text-[11px] text-slate-500">
-                      PYQs, mocks, and chapter-wise practice
-                    </div>
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Mode picker */}
-          <AnimatePresence mode="wait">
-            {selectedExam && !mode && (
-              <motion.div
-                key="mode-select"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.25 }}
-                className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3"
-              >
-                <button
-                  onClick={() => setMode("pyq")}
-                  className="group rounded-2xl bg-white ring-1 ring-slate-200 hover:ring-emerald-300 shadow-sm p-4 text-left transition"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-xl bg-emerald-100 ring-1 ring-emerald-200 flex items-center justify-center">
-                      <BookOpen className="h-5 w-5 text-emerald-700" />
-                    </div>
-                    <div>
-                      <div className="text-[15px] font-bold text-slate-900">
-                        Previous Year Questions (PYQ)
-                      </div>
-                      <div className="text-[12px] text-slate-600">
-                        Topic-wise practice with solutions
-                      </div>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setMode("mock")}
-                  className="group rounded-2xl bg-white ring-1 ring-slate-200 hover:ring-sky-300 shadow-sm p-4 text-left transition"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-xl bg-sky-100 ring-1 ring-sky-200 flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-sky-700" />
-                    </div>
-                    <div>
-                      <div className="text-[15px] font-bold text-slate-900">Mock Papers</div>
-                      <div className="text-[12px] text-slate-600">
-                        Timed full-length tests with analytics
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </main>
 
         {/* Right Panel */}
