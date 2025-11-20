@@ -22,7 +22,9 @@ import {
   Smartphone,
   User,
   Lock,
+  X,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const EXAMS = [
   { id: "jee-main", label: "JEE Main" },
@@ -43,6 +45,7 @@ const CLASS_LEVELS = [
 ];
 
 export default function Dashboard({ user, onLogout }) {
+  const navigate = useNavigate();
   // Personalization state (persisted)
   const [classLevel, setClassLevel] = useState("12");
   const [preferredExams, setPreferredExams] = useState(["jee-main", "jee-adv"]);
@@ -50,6 +53,11 @@ export default function Dashboard({ user, onLogout }) {
   // Flow state
   const [selectedExam, setSelectedExam] = useState(null);
   const [mode, setMode] = useState(null); // "pyq" | "mock"
+
+  // UI state
+  const [showExamPicker, setShowExamPicker] = useState(false);
+  const [nextActionMode, setNextActionMode] = useState(null); // "pyq" | "mock"
+  const [copied, setCopied] = useState(false);
 
   // Load prefs
   useEffect(() => {
@@ -114,9 +122,35 @@ export default function Dashboard({ user, onLogout }) {
 
   function goToBuilder(targetMode) {
     setMode(targetMode);
-    // Smooth scroll to the builder/stepper area
     const el = document.getElementById("builder-stepper");
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Centralized start handlers
+  function startPractice() {
+    if (!selectedExam) {
+      setNextActionMode("pyq");
+      setShowExamPicker(true);
+      return;
+    }
+    navigate(`/practice?exam=${encodeURIComponent(selectedExam)}`);
+  }
+
+  function startMockConfig() {
+    if (!selectedExam) {
+      setNextActionMode("mock");
+      setShowExamPicker(true);
+      return;
+    }
+    navigate(`/mock/config?exam=${encodeURIComponent(selectedExam)}`);
+  }
+
+  function onExamPickAndProceed(examId) {
+    setSelectedExam(examId);
+    setShowExamPicker(false);
+    if (nextActionMode === "pyq") navigate(`/practice?exam=${encodeURIComponent(examId)}`);
+    if (nextActionMode === "mock") navigate(`/mock/config?exam=${encodeURIComponent(examId)}`);
+    setNextActionMode(null);
   }
 
   // Mentors data for slider
@@ -159,7 +193,6 @@ export default function Dashboard({ user, onLogout }) {
   ];
 
   function openMentorForm() {
-    // Redirect to Airtable form (placeholder URL; replace with actual form link if available)
     window.open("https://airtable.com", "_blank");
   }
 
@@ -168,6 +201,16 @@ export default function Dashboard({ user, onLogout }) {
   }
   function openSEAT() {
     window.open("https://seat.examsaathi.com", "_blank");
+  }
+
+  function copyInvite() {
+    try {
+      navigator.clipboard.writeText(
+        `${window.location.origin}/?ref=${encodeURIComponent(user?.phone || 'friend')}`
+      );
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
   }
 
   return (
@@ -308,7 +351,7 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </div>
               </div>
-              <button onClick={() => goToBuilder("pyq")} className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-semibold shadow-sm shadow-emerald-200">
+              <button onClick={startPractice} className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-semibold shadow-sm shadow-emerald-200">
                 Start Practicing
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -325,7 +368,7 @@ export default function Dashboard({ user, onLogout }) {
                 <div className="flex-1">
                   <div className="text-[15px] font-semibold text-slate-900">Full Length Mock Tests</div>
                   <div className="mt-1 text-[12px] text-slate-600">Auto-graded, exam-pattern based tests</div>
-                  <button onClick={() => goToBuilder("mock")} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-sky-600 text-white hover:bg-sky-700">Start Test</button>
+                  <button onClick={startMockConfig} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-sky-600 text-white hover:bg-sky-700">Start Test</button>
                 </div>
               </div>
             </div>
@@ -337,7 +380,7 @@ export default function Dashboard({ user, onLogout }) {
                 <div className="flex-1">
                   <div className="text-[15px] font-semibold text-slate-900">Chapter-wise Practice Tests</div>
                   <div className="mt-1 text-[12px] text-slate-600">Auto-graded, exam-pattern based tests</div>
-                  <button onClick={() => goToBuilder("mock")} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-violet-600 text-white hover:bg-violet-700">Start Test</button>
+                  <button onClick={startMockConfig} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-violet-600 text-white hover:bg-violet-700">Start Test</button>
                 </div>
               </div>
             </div>
@@ -562,13 +605,17 @@ export default function Dashboard({ user, onLogout }) {
                       >
                         Change exam
                       </button>
-                      <a
-                        href="#"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-semibold shadow-sm shadow-emerald-200"
-                      >
-                        Start now
-                        <ChevronRight className="h-4 w-4" />
-                      </a>
+                      {mode === "pyq" ? (
+                        <button onClick={startPractice} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-semibold shadow-sm shadow-emerald-200">
+                          Start now
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                      ) : (
+                        <button onClick={startMockConfig} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-[13px] font-semibold shadow-sm shadow-sky-200">
+                          Start now
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -600,7 +647,7 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="text-[12px] text-slate-600">Upcoming Mock Test</div>
                   <div className="text-[14px] font-semibold text-slate-900">JEE Main Mock 03</div>
                   <div className="mt-1 text-[12px] text-slate-600">Starts today · 7:00 PM</div>
-                  <button onClick={() => goToBuilder("mock")} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-sky-600 text-white hover:bg-sky-700">Start Now</button>
+                  <button onClick={startMockConfig} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-sky-600 text-white hover:bg-sky-700">Start Now</button>
                 </div>
               </div>
             </div>
@@ -663,8 +710,8 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="text-[12px] text-slate-600">Continue where you left</div>
                   <div className="text-[14px] font-semibold text-slate-900">Limits & Continuity – PYQs</div>
                   <div className="mt-2 flex items-center gap-2">
-                    <button className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-violet-600 text-white hover:bg-violet-700">Resume</button>
-                    <button className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-slate-50 ring-1 ring-slate-200 hover:bg-slate-100">Change</button>
+                    <button onClick={() => navigate(`/practice?exam=${encodeURIComponent(selectedExam || 'jee-main')}&chapter=${encodeURIComponent('Limits & Continuity')}`)} className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-violet-600 text-white hover:bg-violet-700">Resume</button>
+                    <button onClick={startPractice} className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-slate-50 ring-1 ring-slate-200 hover:bg-slate-100">Change</button>
                   </div>
                 </div>
               </div>
@@ -703,7 +750,7 @@ export default function Dashboard({ user, onLogout }) {
                 <Share2 className="h-4 w-4 text-pink-600" /> Invite friends
               </div>
               <div className="mt-1 text-[12px] text-slate-600">Get 7 days Pro for every friend who joins.</div>
-              <button className="mt-2 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-pink-600 text-white hover:bg-pink-700">Copy link</button>
+              <button onClick={copyInvite} className="mt-2 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-pink-600 text-white hover:bg-pink-700">{copied ? 'Copied!' : 'Copy link'}</button>
             </div>
 
             <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
@@ -719,6 +766,41 @@ export default function Dashboard({ user, onLogout }) {
           </div>
         </aside>
       </div>
+
+      {/* Exam Picker Modal */}
+      <AnimatePresence>
+        {showExamPicker && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm grid place-items-center p-4"
+          >
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-lg rounded-2xl bg-white ring-1 ring-slate-200 shadow-xl"
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                <div className="text-sm font-semibold text-slate-900">Choose exam to continue</div>
+                <button onClick={() => setShowExamPicker(false)} className="h-8 w-8 grid place-items-center rounded-lg hover:bg-slate-50">
+                  <X className="h-4 w-4 text-slate-500" />
+                </button>
+              </div>
+              <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {EXAMS.map((ex) => (
+                  <button key={ex.id} onClick={() => onExamPickAndProceed(ex.id)} className="rounded-xl bg-white ring-1 ring-slate-200 hover:ring-sky-300 px-3 py-3 text-left">
+                    <div className="text-[13px] font-semibold text-slate-900">{ex.label}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">{nextActionMode === 'pyq' ? 'PYQ practice' : 'Mock config'}</div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
