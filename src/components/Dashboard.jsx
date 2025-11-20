@@ -318,13 +318,13 @@ export default function Dashboard({ user, onLogout }) {
 
               {/* Center column */}
               <main className="space-y-6 lg:space-y-8">
-                {/* Top selection card */}
+                {/* Top selection card (no mock/PYQ buttons) */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute -right-10 -top-10 h-36 w-36 bg-sky-300/10 rounded-full blur-2xl" />
                   <div className="absolute -left-10 -bottom-10 h-36 w-36 bg-emerald-300/10 rounded-full blur-2xl" />
-                  <div className="relative z-10 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] gap-4 md:items-end">
+                  <div className="relative z-10 grid grid-cols-1 gap-4">
                     <div>
-                      <div className="text-[14px] sm:text-[15px] font-semibold text-slate-900">Welcome back, {user?.name || "Student"}</div>
+                      <div className="text-[14px] sm:text-[15px] font-semibold text-slate-900">Welcome back, {"Demo Student"}</div>
                       <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
                         <label className="text-[12px] text-slate-600">Select exam</label>
                         <select
@@ -338,14 +338,6 @@ export default function Dashboard({ user, onLogout }) {
                           ))}
                         </select>
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => openFlow('mock')} className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-sm w-full md:w-auto">
-                        <FileText className="h-4 w-4" /> Mock Papers
-                      </button>
-                      <button onClick={() => openFlow('pyq')} className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold bg-white ring-1 ring-slate-200 text-slate-900 hover:bg-sky-50 shadow-sm w-full md:w-auto">
-                        <BookOpen className="h-4 w-4" /> Previous Year Questions
-                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -374,7 +366,7 @@ export default function Dashboard({ user, onLogout }) {
                   ))}
                 </motion.div>
 
-                {/* Practice section with subjects (kept) */}
+                {/* Practice section with subjects (remove exam tabs) */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(400px_120px_at_20%_-10%, black, transparent)" }}>
                     <div className="absolute left-0 top-0 h-40 w-64 bg-gradient-to-br from-sky-200/40 to-emerald-200/30 blur-2xl" />
@@ -384,28 +376,6 @@ export default function Dashboard({ user, onLogout }) {
                     <button onClick={() => openFlow('pyq')} className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[12px] font-medium hover:from-sky-700 hover:to-emerald-700 shadow-sm">
                       Start Practicing <ChevronRight className="h-4 w-4" />
                     </button>
-                  </div>
-
-                  {/* Tabs by exam */}
-                  <div className="mt-4 overflow-x-auto -mx-2 px-2">
-                    <div className="flex gap-2 min-w-max">
-                      {EXAMS.map((ex) => {
-                        const active = selectedExam === ex.id;
-                        return (
-                          <button
-                            key={ex.id}
-                            onClick={() => setSelectedExam(ex.id)}
-                            className={`px-3 py-1.5 rounded-full text-[12px] ring-1 transition ${
-                              active
-                                ? "bg-slate-900 text-white ring-slate-900"
-                                : "bg-white text-slate-700 ring-slate-200 hover:bg-sky-50"
-                            }`}
-                          >
-                            {ex.label}
-                          </button>
-                        );
-                      })}
-                    </div>
                   </div>
 
                   {/* Subject tiles */}
