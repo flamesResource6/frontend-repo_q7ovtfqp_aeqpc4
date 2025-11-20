@@ -14,11 +14,6 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } }
 };
 
-const floaty = {
-  initial: { y: 0 },
-  animate: { y: [0, -6, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" } }
-};
-
 export default function Features() {
   const items = [
     {
@@ -73,35 +68,37 @@ export default function Features() {
 
   return (
     <section className="relative py-14 sm:py-20 overflow-hidden">
-      {/* Background gradient wash */}
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-white via-sky-50/40 to-white" />
+      {/* Premium backdrop: soft radial base + aurora ribbons + subtle vignette */}
+      <div className="pointer-events-none absolute inset-0 -z-30 bg-gradient-to-b from-white via-slate-50 to-white" />
 
-      {/* Subtle dotted grid */}
-      <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]">
-        <svg className="absolute inset-0 h-full w-full opacity-[0.15]" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="dot-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="1" fill="#0ea5e9" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#dot-grid)" />
-        </svg>
-      </div>
-
-      {/* Floating blobs */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 1 }}
-        className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-emerald-300/25 blur-3xl -z-10"
+      {/* Aurora ribbons (clean, premium, non-spray) */}
+      <div
+        aria-hidden
+        className="absolute -top-28 right-1/2 h-80 w-[120%] -translate-x-1/3 rotate-[-8deg] blur-2xl opacity-[0.35] -z-20"
+        style={{
+          backgroundImage:
+            "conic-gradient(from 210deg at 30% 50%, rgba(14,165,233,0.35), rgba(16,185,129,0.28), rgba(14,165,233,0.35))"
+        }}
       />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 1, delay: 0.1 }}
-        className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-sky-300/25 blur-3xl -z-10"
+      <div
+        aria-hidden
+        className="absolute -bottom-40 left-1/2 h-96 w-[120%] -translate-x-1/2 rotate-[10deg] blur-2xl opacity-[0.28] -z-20"
+        style={{
+          backgroundImage:
+            "conic-gradient(from 40deg at 70% 50%, rgba(99,102,241,0.30), rgba(14,165,233,0.25), rgba(99,102,241,0.30))"
+        }}
+      />
+
+      {/* Vignette to focus content */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10"
+        style={{
+          maskImage: "radial-gradient(ellipse at center, black 60%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse at center, black 60%, transparent 100%)",
+          background:
+            "radial-gradient(1200px 400px at 50% -10%, rgba(2,6,23,0.06), transparent), radial-gradient(800px 600px at 50% 110%, rgba(2,6,23,0.06), transparent)"
+        }}
       />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -119,11 +116,10 @@ export default function Features() {
           <motion.p variants={fadeUp} className="mt-2 text-slate-600">
             Built for Classes 11–12 and droppers preparing for JEE Main, Advanced, BITSAT, EAMCET, MHT CET and Boards.
           </motion.p>
-
-          {/* Spark underline */}
+          {/* understated accent line */}
           <motion.div
             variants={fadeUp}
-            className="mx-auto mt-4 h-1.5 w-28 rounded-full bg-gradient-to-r from-sky-400 to-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.35)]"
+            className="mx-auto mt-4 h-[5px] w-28 rounded-full bg-gradient-to-r from-sky-400 to-emerald-400 shadow-[0_0_18px_rgba(16,185,129,0.28)]"
           />
         </motion.div>
 
@@ -139,16 +135,13 @@ export default function Features() {
             <motion.div
               key={it.title}
               variants={fadeUp}
-              whileHover={{ y: -6, rotate: 0.2 }}
+              whileHover={{ y: -6 }}
               className="group relative rounded-2xl bg-white/90 backdrop-blur ring-1 ring-slate-200 p-5 shadow-sm transition-all duration-300 hover:shadow-xl"
             >
-              {/* Gradient border glow */}
-              <div className={`pointer-events-none absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br ${it.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} style={{ maskImage: "radial-gradient(white, transparent 65%)" }} />
-
-              {/* Floating accent orbs */}
-              <motion.span
-                {...floaty}
-                className={`absolute -right-4 -top-4 h-12 w-12 rounded-full bg-gradient-to-br ${it.gradient} blur-xl opacity-40`} aria-hidden
+              {/* Elegant gradient hairline border on hover */}
+              <div
+                className={`pointer-events-none absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br ${it.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                style={{ maskImage: "linear-gradient(white 0, white calc(100% - 1.5px), transparent calc(100% - 1.5px))" }}
               />
 
               {/* Icon */}
@@ -166,7 +159,7 @@ export default function Features() {
                 {it.desc}
               </p>
 
-              {/* Animated progress bars / accents */}
+              {/* Subtle progress accents */}
               <div className="mt-4 space-y-2">
                 <motion.div
                   initial={{ width: 0 }}
@@ -184,12 +177,14 @@ export default function Features() {
                 />
               </div>
 
-              {/* Corner sparkle */}
-              <motion.div
-                className="absolute -bottom-3 -left-3 h-8 w-8 rounded-full bg-gradient-to-tr from-white to-transparent"
-                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: idx * 0.2 }}
+              {/* Sheen on hover for premium feel */}
+              <span
                 aria-hidden
+                className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background:
+                    "linear-gradient(120deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.7) 35%, rgba(255,255,255,0) 55%)"
+                }}
               />
             </motion.div>
           ))}
