@@ -350,65 +350,6 @@ export default function Dashboard({ user, onLogout }) {
             <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)_330px] gap-4 lg:gap-6 py-6 lg:py-8">
               {/* Left rail */}
               <aside className="hidden lg:block">
-                {/* Promo Block: AlgoUniversity School of CS & AI */}
-                <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden mb-4">
-                  <div className="pointer-events-none absolute -inset-6 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent blur-2xl" />
-                  <div className="relative z-10">
-                    <div className="text-[12px] font-semibold tracking-wide uppercase text-sky-700">Introducing AlgoUniversity School of CS & AI</div>
-                    <div className="mt-2 text-[16px] font-bold text-slate-900 leading-snug">
-                      Introducing AlgoUniversity School of CS & AI
-                    </div>
-                    <div className="mt-1 text-[13px] text-slate-700">
-                      A next-gen B.Tech experience built by engineers from IIT Bombay & IIIT Hyderabad
-                    </div>
-                    <div className="my-3 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-                    <div className="text-[13px] text-slate-700">
-                      Shaping future-ready software engineers with hands-on learning, paid internships, and industry mentorship.
-                    </div>
-                    <div className="mt-3 grid grid-cols-1 gap-2">
-                      {/* Card 1 */}
-                      <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
-                        <div className="flex items-start gap-2">
-                          <Star className="h-4 w-4 text-amber-500 shrink-0" />
-                          <div>
-                            <div className="text-[13px] font-semibold text-slate-900">Learn from Top Engineers</div>
-                            <div className="text-[12px] text-slate-600">Classes taught by mentors from Google, Microsoft, and top tech firms.</div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* Card 2 */}
-                      <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
-                        <div className="flex items-start gap-2">
-                          <Star className="h-4 w-4 text-amber-500 shrink-0" />
-                          <div>
-                            <div className="text-[13px] font-semibold text-slate-900">Real Experience Before Graduation</div>
-                            <div className="text-[12px] text-slate-600">Students complete internships & live projects during B.Tech.</div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* Card 3 */}
-                      <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
-                        <div className="flex items-start gap-2">
-                          <Star className="h-4 w-4 text-amber-500 shrink-0" />
-                          <div>
-                            <div className="text-[13px] font-semibold text-slate-900">Assured Paid Internships</div>
-                            <div className="text-[12px] text-slate-600">From 2nd year onwards, students earn while they learn.</div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* Card 4 */}
-                      <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
-                        <div className="flex items-start gap-2">
-                          <Star className="h-4 w-4 text-amber-500 shrink-0" />
-                          <div>
-                            <div className="text-[13px] font-semibold text-slate-900">Placement-Focused Program</div>
-                            <div className="text-[12px] text-slate-600">Access to AlgoUniversity’s 5000+ hiring partners & 25 LPA avg. outcomes.</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 <nav className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-2 shadow-sm overflow-hidden">
                   <div className="pointer-events-none absolute -inset-6 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent blur-2xl" />
                   {sidebarItems.map(({ id, label, icon: Icon, locked, action }) => (
@@ -440,6 +381,16 @@ export default function Dashboard({ user, onLogout }) {
                     </button>
                   ))}
                 </nav>
+
+                {/* Invite friends moved below navbar */}
+                <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden mt-4">
+                  <div className="absolute -left-8 -bottom-8 h-20 w-20 bg-emerald-300/10 rounded-full blur-xl" />
+                  <div className="flex items-center gap-2 text-[16px] font-semibold text-slate-900 relative z-10">
+                    <Share2 className="h-5 w-5 text-sky-700" /> Invite friends
+                  </div>
+                  <div className="mt-2 text-[14px] text-slate-600 relative z-10">Get 7 days Pro for every friend who joins.</div>
+                  <button onClick={copyInvite} className="relative z-10 mt-3 px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">{copied ? 'Copied!' : 'Copy link'}</button>
+                </div>
               </aside>
 
               {/* Center column */}
@@ -654,38 +605,64 @@ export default function Dashboard({ user, onLogout }) {
               {/* Right rail */}
               <aside className="hidden lg:block">
                 <div className="space-y-4">
-                  {/* Progress snapshot (kept) */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
-                    <div className="absolute -left-6 -bottom-6 h-16 w-16 bg-emerald-300/10 rounded-full blur-xl" />
-                    <div className="flex items-center justify-between relative z-10">
-                      <div className="text-[16px] font-semibold text-slate-900">Performance snapshot</div>
-                      <LineChart className="h-5 w-5 text-slate-600" />
-                    </div>
-                    <div className="mt-3 grid grid-cols-2 gap-4 relative z-10">
-                      <div>
-                        <div className="text-[13px] text-slate-500">Chapters completed</div>
-                        <div className="text-[22px] font-bold text-slate-900">28</div>
+                  {/* Promo Block moved to right side */}
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden">
+                    <div className="pointer-events-none absolute -inset-6 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent blur-2xl" />
+                    <div className="relative z-10">
+                      <div className="text-[12px] font-semibold tracking-wide uppercase text-sky-700">Introducing AlgoUniversity School of CS & AI</div>
+                      <div className="mt-2 text-[16px] font-bold text-slate-900 leading-snug">
+                        Introducing AlgoUniversity School of CS & AI
                       </div>
-                      <div>
-                        <div className="text-[13px] text-slate-500">Tests attempted</div>
-                        <div className="text-[22px] font-bold text-slate-900">14</div>
+                      <div className="mt-1 text-[13px] text-slate-700">
+                        A next-gen B.Tech experience built by engineers from IIT Bombay & IIIT Hyderabad
+                      </div>
+                      <div className="my-3 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                      <div className="text-[13px] text-slate-700">
+                        Shaping future-ready software engineers with hands-on learning, paid internships, and industry mentorship.
+                      </div>
+                      <div className="mt-3 grid grid-cols-1 gap-2">
+                        {/* Card 1 */}
+                        <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
+                          <div className="flex items-start gap-2">
+                            <Star className="h-4 w-4 text-amber-500 shrink-0" />
+                            <div>
+                              <div className="text-[13px] font-semibold text-slate-900">Learn from Top Engineers</div>
+                              <div className="text-[12px] text-slate-600">Classes taught by mentors from Google, Microsoft, and top tech firms.</div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Card 2 */}
+                        <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
+                          <div className="flex items-start gap-2">
+                            <Star className="h-4 w-4 text-amber-500 shrink-0" />
+                            <div>
+                              <div className="text-[13px] font-semibold text-slate-900">Real Experience Before Graduation</div>
+                              <div className="text-[12px] text-slate-600">Students complete internships & live projects during B.Tech.</div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Card 3 */}
+                        <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
+                          <div className="flex items-start gap-2">
+                            <Star className="h-4 w-4 text-amber-500 shrink-0" />
+                            <div>
+                              <div className="text-[13px] font-semibold text-slate-900">Assured Paid Internships</div>
+                              <div className="text-[12px] text-slate-600">From 2nd year onwards, students earn while they learn.</div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Card 4 */}
+                        <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
+                          <div className="flex items-start gap-2">
+                            <Star className="h-4 w-4 text-amber-500 shrink-0" />
+                            <div>
+                              <div className="text-[13px] font-semibold text-slate-900">Placement-Focused Program</div>
+                              <div className="text-[12px] text-slate-600">Access to AlgoUniversity’s 5000+ hiring partners & 25 LPA avg. outcomes.</div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="mt-4 h-14 w-full rounded-lg ring-1 ring-slate-200 bg-slate-50 p-2 relative z-10">
-                      <svg viewBox="0 0 100 24" className="h-full w-full">
-                        <polyline fill="none" stroke="#0ea5e9" strokeWidth="2" points="0,18 10,16 20,15 30,12 40,14 50,10 60,11 70,9 80,8 90,6 100,5" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Invite friends (kept) */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
-                    <div className="absolute -left-8 -bottom-8 h-20 w-20 bg-emerald-300/10 rounded-full blur-xl" />
-                    <div className="flex items-center gap-2 text-[16px] font-semibold text-slate-900 relative z-10">
-                      <Share2 className="h-5 w-5 text-sky-700" /> Invite friends
-                    </div>
-                    <div className="mt-2 text-[14px] text-slate-600 relative z-10">Get 7 days Pro for every friend who joins.</div>
-                    <button onClick={copyInvite} className="relative z-10 mt-3 px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">{copied ? 'Copied!' : 'Copy link'}</button>
                   </div>
                 </div>
               </aside>
