@@ -1,5 +1,6 @@
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
+import ExamsCarousel from "./components/ExamsCarousel";
 import Features from "./components/Features";
 import CTA from "./components/CTA";
 
@@ -8,6 +9,7 @@ function App() {
     <div className="min-h-screen bg-white text-slate-900">
       <Navbar />
       <Hero />
+      <ExamsCarousel />
       <Features />
       <CTA />
       <footer className="py-8 border-t border-slate-200">
