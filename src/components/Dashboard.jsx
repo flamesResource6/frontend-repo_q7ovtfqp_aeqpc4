@@ -285,6 +285,23 @@ export default function Dashboard({ user, onLogout }) {
     navigate(`/practice?${params.toString()}`);
   }
 
+  // Sort deadlines by nearest upcoming date
+  const sortedDeadlines = useMemo(() => {
+    const today = new Date();
+    const parsed = DEADLINES.map(d => ({
+      ...d,
+      ts: new Date(d.date).getTime(),
+    }));
+    // filter out past if parse ok, otherwise keep
+    const upcoming = parsed.filter(d => !Number.isNaN(d.ts) ? d.ts >= new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() : true);
+    upcoming.sort((a, b) => {
+      const at = Number.isNaN(a.ts) ? Infinity : a.ts;
+      const bt = Number.isNaN(b.ts) ? Infinity : b.ts;
+      return at - bt;
+    });
+    return upcoming.map(({ ts, ...rest }) => rest);
+  }, []);
+
   const fadeUp = {
     hidden: { y: 10, opacity: 0 },
     show: { y: 0, opacity: 1, transition: { duration: 0.35 } },
@@ -409,7 +426,7 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="relative z-10">
                     <div className="text-[12px] font-semibold tracking-wide uppercase text-slate-700">Upcoming entrance deadlines</div>
                     <ul className="mt-2 divide-y divide-slate-200">
-                      {DEADLINES.slice(0, 7).map((item, idx) => (
+                      {sortedDeadlines.slice(0, 7).map((item, idx) => (
                         <li key={idx} className="flex items-center justify-between py-2">
                           <div>
                             <div className="text-[13px] font-medium text-slate-900 leading-tight">{item.name}</div>
@@ -431,7 +448,7 @@ export default function Dashboard({ user, onLogout }) {
 
               {/* Center column */}
               <main className="space-y-5 lg:space-y-6">
-                {/* Top selection card */}
+                {/* Top selection card with inline stats */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute -right-10 -top-10 h-32 w-32 bg-sky-300/10 rounded-full blur-2xl" />
                   <div className="absolute -left-10 -bottom-10 h-32 w-32 bg-emerald-300/10 rounded-full blur-2xl" />
@@ -451,6 +468,23 @@ export default function Dashboard({ user, onLogout }) {
                           ))}
                         </select>
                       </div>
+                    </div>
+
+                    {/* Compact inline stats */}
+                    <div className="mt-1 grid grid-cols-3 gap-2.5">
+                      {[
+                        { title: 'Accuracy', value: '82%' },
+                        { title: 'Avg Score', value: '178' },
+                        { title: 'Questions', value: '462' },
+                      ].map((kpi, idx) => (
+                        <div key={idx} className="relative rounded-xl bg-white ring-1 ring-slate-200 p-3 shadow-sm overflow-hidden">
+                          <div className="absolute -right-6 -top-6 h-14 w-14 bg-sky-200/20 rounded-full blur-xl" />
+                          <div className="relative z-10">
+                            <div className="text-[11px] text-slate-500">{kpi.title}</div>
+                            <div className="text-[18px] font-semibold text-slate-900">{kpi.value}</div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </motion.div>
@@ -618,36 +652,7 @@ export default function Dashboard({ user, onLogout }) {
               {/* Right rail */}
               <aside className="hidden lg:block">
                 <div className="space-y-3.5">
-                  {/* Stats group heading and KPI cards */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden">
-                    <div className="absolute -top-6 right-6 h-16 w-16 bg-gradient-to-br from-sky-200/30 to-emerald-200/20 rounded-full blur-2xl" />
-                    <div className="relative z-10">
-                      <div className="text-[12px] font-semibold tracking-wide uppercase text-slate-700">Your stats</div>
-                      <div className="mt-2 grid grid-cols-1 gap-2.5">
-                        {[
-                          { title: 'Accuracy', value: '82%', sub: '+4% this week', icon: Target, tint: 'from-sky-200/30' },
-                          { title: 'Avg Score', value: '178', sub: 'out of 300', icon: Award, tint: 'from-emerald-200/30' },
-                          { title: 'Questions', value: '462', sub: 'this month', icon: BookOpen, tint: 'from-sky-200/30' },
-                        ].map(({ title, value, sub, icon: Icon, tint }, idx) => (
-                          <div key={idx} className="relative rounded-xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden">
-                            <div className={`absolute -right-8 -top-8 h-20 w-20 bg-gradient-to-br ${tint} to-transparent blur-2xl`} />
-                            <div className="relative z-10 flex items-start gap-3.5">
-                              <div className="h-10 w-10 rounded-lg bg-white ring-1 ring-slate-200 grid place-items-center">
-                                <Icon className="h-5 w-5 text-slate-800" />
-                              </div>
-                              <div className="flex-1">
-                                <div className="text-[12px] text-slate-500">{title}</div>
-                                <div className="text-[20px] font-semibold text-slate-900">{value}</div>
-                                <div className="text-[11px] text-slate-500">{sub}</div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Promo Block moved below stats */}
+                  {/* Promo Block (stats moved into welcome card) */}
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden">
                     <div className="pointer-events-none absolute -inset-6 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent blur-2xl" />
                     <div className="relative z-10">
