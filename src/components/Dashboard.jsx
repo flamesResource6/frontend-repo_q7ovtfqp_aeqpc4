@@ -42,15 +42,21 @@ const CLASS_LEVELS = [
   { id: "dropper", label: "Dropper" },
 ];
 
-// New: upcoming entrance deadlines (static sample)
+// Expanded: upcoming entrance deadlines (dummy data)
 const DEADLINES = [
   { name: "IIT JEE Main (Session 2)", date: "Mar 12, 2025", url: "https://jeemain.nta.nic.in/" },
-  { name: "EAMCET", date: "Apr 3, 2025", url: "https://eamcet.tsche.ac.in/" },
+  { name: "EAMCET", date: "Apr 03, 2025", url: "https://eamcet.tsche.ac.in/" },
   { name: "BITSAT", date: "Mar 29, 2025", url: "https://www.bitsadmission.com/" },
   { name: "VITEEE", date: "Mar 15, 2025", url: "https://viteee.vit.ac.in/" },
   { name: "WBJEE", date: "Feb 28, 2025", url: "https://wbjeeb.nic.in/" },
   { name: "MHT-CET", date: "Mar 20, 2025", url: "https://cetcell.mahacet.org/" },
   { name: "SRMJEEE", date: "Mar 18, 2025", url: "https://applications.srmist.edu.in/btech" },
+  { name: "KIITEE", date: "Mar 22, 2025", url: "https://kiitee.kiit.ac.in/" },
+  { name: "Manipal MET", date: "Apr 10, 2025", url: "https://manipal.edu/mu/admissions.html" },
+  { name: "AMUEEE", date: "Mar 30, 2025", url: "https://www.amucontrollerexams.com/" },
+  { name: "COMEDK UGET", date: "Apr 05, 2025", url: "https://www.comedk.org/" },
+  { name: "AP EAPCET", date: "Apr 08, 2025", url: "https://cets.apsche.ap.gov.in/" },
+  { name: "CUSAT CAT", date: "Mar 25, 2025", url: "https://admissions.cusat.ac.in/" },
 ];
 
 export default function Dashboard({ user, onLogout }) {
@@ -82,6 +88,13 @@ export default function Dashboard({ user, onLogout }) {
 
   // New: subject selection for quick "Start Solving PYQs" section
   const [practiceSubjects, setPracticeSubjects] = useState({ physics: false, chemistry: false, math: false });
+
+  // New: Today's plan checklist state
+  const [todayTasks, setTodayTasks] = useState({
+    physics: false,
+    chemistry: true,
+    maths: false,
+  });
 
   // Load prefs
   useEffect(() => {
@@ -292,7 +305,6 @@ export default function Dashboard({ user, onLogout }) {
       ...d,
       ts: new Date(d.date).getTime(),
     }));
-    // filter out past if parse ok, otherwise keep
     const upcoming = parsed.filter(d => !Number.isNaN(d.ts) ? d.ts >= new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() : true);
     upcoming.sort((a, b) => {
       const at = Number.isNaN(a.ts) ? Infinity : a.ts;
@@ -306,6 +318,21 @@ export default function Dashboard({ user, onLogout }) {
     hidden: { y: 10, opacity: 0 },
     show: { y: 0, opacity: 1, transition: { duration: 0.35 } },
   };
+
+  // Progress helper component (inline bars)
+  function ProgressBar({ label, value, tint }) {
+    return (
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-[12px] text-slate-600">
+          <span>{label}</span>
+          <span className="font-medium text-slate-900">{value}%</span>
+        </div>
+        <div className="h-2 w-full rounded-full bg-slate-100">
+          <div className={`h-2 rounded-full ${tint}`} style={{ width: `${value}%` }} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className="relative min-h-screen overflow-hidden">
@@ -410,7 +437,7 @@ export default function Dashboard({ user, onLogout }) {
                   ))}
                 </nav>
 
-                {/* Invite friends moved below navbar */}
+                {/* Invite friends */}
                 <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden mt-3">
                   <div className="absolute -left-8 -bottom-8 h-20 w-20 bg-emerald-300/10 rounded-full blur-xl" />
                   <div className="flex items-center gap-2 text-[15px] font-semibold text-slate-900 relative z-10">
@@ -424,9 +451,12 @@ export default function Dashboard({ user, onLogout }) {
                 <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden mt-3">
                   <div className="absolute -right-10 -top-10 h-16 w-16 bg-sky-300/10 rounded-full blur-2xl" />
                   <div className="relative z-10">
-                    <div className="text-[12px] font-semibold tracking-wide uppercase text-slate-700">Upcoming entrance deadlines</div>
-                    <ul className="mt-2 divide-y divide-slate-200">
-                      {sortedDeadlines.slice(0, 7).map((item, idx) => (
+                    <div className="flex items-center justify-between">
+                      <div className="text-[12px] font-semibold tracking-wide uppercase text-slate-700">Upcoming entrance deadlines</div>
+                      <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-[11px] text-sky-700 underline decoration-sky-200">View all</button>
+                    </div>
+                    <ul className="mt-2 divide-y divide-slate-200 max-h-72 overflow-auto pr-1">
+                      {sortedDeadlines.slice(0, 10).map((item, idx) => (
                         <li key={idx} className="flex items-center justify-between py-2">
                           <div>
                             <div className="text-[13px] font-medium text-slate-900 leading-tight">{item.name}</div>
@@ -446,9 +476,9 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
               </aside>
 
-              {/* Center column */}
+              {/* Center column (redesigned) */}
               <main className="space-y-5 lg:space-y-6">
-                {/* Top selection card with inline stats */}
+                {/* Welcome + inline stats */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute -right-10 -top-10 h-32 w-32 bg-sky-300/10 rounded-full blur-2xl" />
                   <div className="absolute -left-10 -bottom-10 h-32 w-32 bg-emerald-300/10 rounded-full blur-2xl" />
@@ -489,133 +519,107 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </motion.div>
 
-                {/* Practice section */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
-                  <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(400px_120px_at_20%_-10%, black, transparent)" }}>
-                    <div className="absolute left-0 top-0 h-36 w-60 bg-gradient-to-br from-sky-200/40 to-emerald-200/30 blur-2xl" />
-                  </div>
-                  <div className="flex items-center justify-between relative z-10">
-                    <h2 className="text-[17px] font-semibold text-slate-900">Start Solving PYQs</h2>
-                  </div>
-
-                  {/* Subject selection chips */}
-                  <div className="mt-3.5 flex flex-wrap gap-2">
-                    <button
-                      onClick={() => selectAllPCM(!allSelected)}
-                      className={`px-3 py-2 rounded-md text-[12px] ring-1 transition ${allSelected ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}
-                    >
-                      All PCM
-                    </button>
-                    {[
-                      { id: 'physics', label: 'Physics' },
-                      { id: 'chemistry', label: 'Chemistry' },
-                      { id: 'math', label: 'Maths' },
-                    ].map(opt => (
-                      <button
-                        key={opt.id}
-                        onClick={() => toggleSubject(opt.id)}
-                        className={`px-3 py-2 rounded-md text-[12px] ring-1 transition ${practiceSubjects[opt.id] ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* CTA */}
-                  <div className="mt-4 flex">
-                    <button onClick={startPracticeFromSection} className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[13px] font-semibold shadow-sm">
-                      Start Practising
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                </motion.div>
-
-                {/* Action cards row */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-3.5">
-                  {/* Full-Length Mock Tests */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
-                    <div className="absolute -right-8 -top-8 h-20 w-20 bg-sky-300/10 rounded-full blur-xl" />
-                    <div className="flex items-start gap-4 relative z-10">
-                      <div className="h-11 w-11 rounded-xl bg-sky-50 ring-1 ring-slate-200 grid place-items-center">
-                        <FileText className="h-5 w-5 text-sky-700" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-[17px] font-semibold text-slate-900">Full-Length Mock Tests</div>
-                        <div className="mt-0.5 text-[13px] text-slate-600">Auto-graded, exam-pattern based tests</div>
-                        <button onClick={() => openFlow('mock')} className="mt-3 px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Past Year Papers - updated */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
-                    <div className="absolute -left-8 -bottom-8 h-20 w-20 bg-emerald-300/10 rounded-full blur-xl" />
-                    <div className="flex items-start gap-4 relative z-10">
-                      <div className="h-11 w-11 rounded-xl bg-emerald-50 ring-1 ring-slate-200 grid place-items-center">
-                        <Trophy className="h-5 w-5 text-emerald-700" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-[17px] font-semibold text-slate-900">Appear for Real Prev. Year Papers</div>
-                        <div className="mt-0.5 text-[13px] text-slate-600">Pick a specific year to simulate your score.</div>
-
-                        {/* Year dropdown */}
-                        <div className="mt-2.5 flex items-center gap-3">
-                          <label className="text-[12px] text-slate-600">Year</label>
-                          <select
-                            value={selectedYear ?? ''}
-                            onChange={(e) => setSelectedYear(Number(e.target.value))}
-                            className="text-[12px] rounded-md ring-1 ring-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 w-36"
-                          >
-                            <option value="" disabled>Select</option>
-                            {yearsList.map((y) => (
-                              <option key={y} value={y}>{y}</option>
-                            ))}
-                          </select>
+                {/* New: Quick Actions grid */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+                  {[{
+                    title: 'Start PYQs', icon: BookOpen, action: () => openFlow('pyq'), tint: 'from-sky-200/40'
+                  },{
+                    title: 'Full Mock', icon: FileText, action: () => openFlow('mock'), tint: 'from-emerald-200/40'
+                  },{
+                    title: 'Chapter Practice', icon: PlayCircle, action: () => openFlow('mock'), tint: 'from-sky-200/40'
+                  },{
+                    title: 'Build Roadmap', icon: Target, action: () => openRoadmap(), tint: 'from-emerald-200/40'
+                  }].map((q, idx) => (
+                    <button key={idx} onClick={q.action} className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden text-left group">
+                      <div className={`absolute -inset-8 bg-gradient-to-br ${q.tint} to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition`} />
+                      <div className="relative z-10 flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-white ring-1 ring-slate-200 grid place-items-center">
+                          <q.icon className="h-5 w-5 text-slate-800" />
                         </div>
+                        <div className="text-[14px] font-semibold text-slate-900">{q.title}</div>
+                      </div>
+                    </button>
+                  ))}
+                </motion.div>
 
-                        {/* CTA only (range buttons removed) */}
-                        <div className="mt-3 flex items-center gap-2">
-                          <button onClick={openPyqScore} className="px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Simulate Score</button>
-                        </div>
+                {/* New: Today's Plan + Progress Overview */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 xl:grid-cols-2 gap-3.5">
+                  {/* Today plan */}
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
+                    <div className="absolute -left-10 -top-10 h-20 w-20 bg-emerald-300/20 rounded-full blur-2xl" />
+                    <div className="relative z-10">
+                      <div className="text-[15px] font-semibold text-slate-900">Your day at a glance</div>
+                      <div className="mt-1 text-[12px] text-slate-600">Keep your streak going · 12-day streak</div>
+                      <div className="mt-3 space-y-2">
+                        {[{ key:'physics', label:'Solve 25 Physics PYQs' }, { key:'chemistry', label:'Revise Organic Chemistry' }, { key:'maths', label:'Attempt Maths Mock (1 hr)' }].map(item => (
+                          <label key={item.key} className="flex items-center gap-3 p-2 rounded-lg ring-1 ring-slate-200 hover:bg-sky-50/40 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={todayTasks[item.key]}
+                              onChange={(e) => setTodayTasks(prev => ({ ...prev, [item.key]: e.target.checked }))}
+                              className="h-4 w-4"
+                            />
+                            <span className={`text-[13px] ${todayTasks[item.key] ? 'line-through text-slate-500' : 'text-slate-800'}`}>{item.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Progress overview */}
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
+                    <div className="absolute -right-10 -bottom-10 h-24 w-24 bg-sky-300/20 rounded-full blur-2xl" />
+                    <div className="relative z-10">
+                      <div className="text-[15px] font-semibold text-slate-900">Progress overview</div>
+                      <div className="mt-3 space-y-3">
+                        <ProgressBar label="Accuracy" value={82} tint="bg-sky-500" />
+                        <ProgressBar label="Syllabus completion" value={61} tint="bg-emerald-500" />
+                        <ProgressBar label="Consistency" value={74} tint="bg-indigo-500" />
+                      </div>
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        {[
+                          { title: 'This week', value: '6h 10m' },
+                          { title: 'Mocks', value: '3 taken' },
+                          { title: 'PYQs', value: '462 solved' },
+                        ].map((b, idx) => (
+                          <div key={idx} className="rounded-xl ring-1 ring-slate-200 bg-white p-3 text-center">
+                            <div className="text-[11px] text-slate-500">{b.title}</div>
+                            <div className="text-[15px] font-semibold text-slate-900">{b.value}</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
                 </motion.div>
 
-                {/* Second row for two more cards */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-3.5">
-                  {/* Chapter-wise Practice */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
-                    <div className="absolute -left-8 -bottom-8 h-20 w-20 bg-emerald-300/10 rounded-full blur-xl" />
-                    <div className="flex items-start gap-4 relative z-10">
-                      <div className="h-11 w-11 rounded-xl bg-emerald-50 ring-1 ring-slate-200 grid place-items-center">
-                        <PlayCircle className="h-5 w-5 text-emerald-700" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-[17px] font-semibold text-slate-900">Chapter-wise Practice</div>
-                        <div className="mt-0.5 text-[13px] text-slate-600">Create focused tests by chapter</div>
-                        <button onClick={() => openFlow('mock')} className="mt-3 px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
-                      </div>
+                {/* New: Recent activity */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
+                  <div className="absolute -left-10 -bottom-10 h-24 w-24 bg-emerald-300/20 rounded-full blur-2xl" />
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-[15px] font-semibold text-slate-900">Recent activity</h3>
+                      <button onClick={() => navigate('/activity')} className="text-[12px] text-sky-700 underline decoration-sky-200">View details</button>
                     </div>
-                  </div>
-
-                  {/* Personalised Revision Roadmap */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
-                    <div className="absolute -right-8 -top-8 h-20 w-20 bg-sky-300/10 rounded-full blur-xl" />
-                    <div className="flex items-start gap-4 relative z-10">
-                      <div className="h-11 w-11 rounded-xl bg-sky-50 ring-1 ring-slate-200 grid place-items-center">
-                        <Target className="h-5 w-5 text-sky-700" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-[17px] font-semibold text-slate-900">Personalised Revision Roadmap</div>
-                        <div className="mt-0.5 text-[13px] text-slate-600">A step-by-step plan tailored to your weak areas.</div>
-                        <button onClick={openRoadmap} className="mt-3 px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Build Roadmap</button>
-                      </div>
-                    </div>
+                    <ul className="mt-2 divide-y divide-slate-200">
+                      {[
+                        { title: 'Full Mock – JEE Main', meta: 'Scored 178/300 · 1h 30m' },
+                        { title: 'PYQs – Physics (Kinematics)', meta: '20 questions · 85% accuracy' },
+                        { title: 'PYQs – Chemistry (Organic Basics)', meta: '15 questions · 73% accuracy' },
+                        { title: 'Roadmap updated', meta: 'Focus: Maths & Physics for 4 weeks' },
+                      ].map((it, idx) => (
+                        <li key={idx} className="py-2.5 flex items-start justify-between">
+                          <div>
+                            <div className="text-[13px] font-medium text-slate-900">{it.title}</div>
+                            <div className="text-[11px] text-slate-500">{it.meta}</div>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-slate-400" />
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </motion.div>
 
-                {/* Mentor carousel */}
+                {/* Mentor carousel remains */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(380px_120px_at_90%_120%, black, transparent)" }}>
                     <div className="absolute right-0 bottom-0 h-36 w-60 bg-gradient-to-br from-emerald-200/30 to-sky-200/30 blur-2xl" />
@@ -652,7 +656,7 @@ export default function Dashboard({ user, onLogout }) {
               {/* Right rail */}
               <aside className="hidden lg:block">
                 <div className="space-y-3.5">
-                  {/* Promo Block (stats moved into welcome card) */}
+                  {/* Promo Block */}
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden">
                     <div className="pointer-events-none absolute -inset-6 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent blur-2xl" />
                     <div className="relative z-10">
