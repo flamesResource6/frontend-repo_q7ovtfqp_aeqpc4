@@ -171,6 +171,20 @@ export default function Dashboard({ user, onLogout }) {
     setFlowModalOpen(true);
   }
 
+  // Open PYQ score simulator with preset years (default 10) and jump to scope step
+  function openPyqScore(presetYears = 10) {
+    if (!selectedExam) {
+      setShowExamPicker(true);
+      return;
+    }
+    setMode('pyq');
+    setFlowType('pyq');
+    setYears(presetYears);
+    setScope(null);
+    setFlowStep(2);
+    setFlowModalOpen(true);
+  }
+
   function goToSelection(selScope) {
     if (!selectedExam || !flowType || !years) return;
     const q = new URLSearchParams({ exam: selectedExam, years: String(years), scope: selScope }).toString();
@@ -400,8 +414,9 @@ export default function Dashboard({ user, onLogout }) {
                   </button>
                 </motion.div>
 
-                {/* Mock tests CTA */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Action cards row: expand with two new cards */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
+                  {/* Full-Length Mock Tests */}
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                     <div className="absolute -right-8 -top-8 h-24 w-24 bg-sky-300/10 rounded-full blur-xl" />
                     <div className="flex items-start gap-3 relative z-10">
@@ -415,6 +430,33 @@ export default function Dashboard({ user, onLogout }) {
                       </div>
                     </div>
                   </div>
+
+                  {/* Past Year Score Simulator */}
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
+                    <div className="absolute -left-8 -bottom-8 h-24 w-24 bg-emerald-300/10 rounded-full blur-xl" />
+                    <div className="flex items-start gap-3 relative z-10">
+                      <div className="h-10 w-10 rounded-lg bg-emerald-50 ring-1 ring-slate-200 grid place-items-center">
+                        <Trophy className="h-5 w-5 text-emerald-700" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-[15px] font-semibold text-slate-900">Appear for Past Year Papers</div>
+                        <div className="mt-1 text-[12px] text-slate-600">Choose up to 10 years and see your score with current prep.</div>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {[1,3,5,10].map((y) => (
+                            <button key={y} onClick={() => openPyqScore(y)} className="px-2.5 py-1.5 rounded-md text-[12px] font-medium ring-1 ring-slate-200 hover:bg-sky-50">
+                              {y} yr{y>1?'s':''}
+                            </button>
+                          ))}
+                          <button onClick={() => openPyqScore(10)} className="ml-auto px-3 py-1.5 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Simulate Score</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Second row for two more cards to keep layout airy */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
+                  {/* Chapter-wise Practice */}
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                     <div className="absolute -left-8 -bottom-8 h-24 w-24 bg-emerald-300/10 rounded-full blur-xl" />
                     <div className="flex items-start gap-3 relative z-10">
@@ -425,6 +467,21 @@ export default function Dashboard({ user, onLogout }) {
                         <div className="text-[15px] font-semibold text-slate-900">Chapter-wise Practice</div>
                         <div className="mt-1 text-[12px] text-slate-600">Create focused tests by chapter</div>
                         <button onClick={() => openFlow('mock')} className="mt-3 px-3 py-1.5 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Personalised Revision Roadmap */}
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
+                    <div className="absolute -right-8 -top-8 h-24 w-24 bg-sky-300/10 rounded-full blur-xl" />
+                    <div className="flex items-start gap-3 relative z-10">
+                      <div className="h-10 w-10 rounded-lg bg-sky-50 ring-1 ring-slate-200 grid place-items-center">
+                        <Target className="h-5 w-5 text-sky-700" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-[15px] font-semibold text-slate-900">Personalised Revision Roadmap</div>
+                        <div className="mt-1 text-[12px] text-slate-600">A step-by-step plan tailored to your weak areas.</div>
+                        <button onClick={() => navigate(`/roadmap?exam=${selectedExam || ''}`)} className="mt-3 px-3 py-1.5 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Build Roadmap</button>
                       </div>
                     </div>
                   </div>
