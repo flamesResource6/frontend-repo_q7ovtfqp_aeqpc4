@@ -349,43 +349,6 @@ export default function Dashboard({ user, onLogout }) {
             </div>
           </div>
 
-          {/* Tabs + CTA bar (no exam selector here anymore) */}
-          <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-2 mb-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex items-center rounded-xl ring-1 ring-slate-200 bg-slate-50 overflow-hidden">
-                <button
-                  onClick={() => setMode("pyq")}
-                  className={`px-3 py-2 text-[13px] font-medium transition ${
-                    mode === 'pyq' ? 'bg-white text-emerald-700 ring-1 ring-emerald-200' : 'text-slate-600 hover:text-slate-800'
-                  }`}
-                >
-                  Previous Year Papers
-                </button>
-                <button
-                  onClick={() => setMode("mock")}
-                  className={`px-3 py-2 text-[13px] font-medium transition ${
-                    mode === 'mock' ? 'bg-white text-sky-700 ring-1 ring-sky-200' : 'text-slate-600 hover:text-slate-800'
-                  }`}
-                >
-                  Mock Papers
-                </button>
-              </div>
-              <div className="flex items-center">
-                {mode === "pyq" ? (
-                  <button onClick={startPractice} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-semibold shadow-sm shadow-emerald-200">
-                    Start Practicing
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                ) : (
-                  <button onClick={startMockConfig} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-[13px] font-semibold shadow-sm shadow-sky-200">
-                    Start Test
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
           {/* 1. PYQs Module - Hero */}
           <div className="rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-white ring-1 ring-emerald-100 p-5 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
