@@ -20,6 +20,8 @@ import {
   Trophy,
   Share2,
   Smartphone,
+  User,
+  Lock,
 } from "lucide-react";
 
 const EXAMS = [
@@ -89,12 +91,14 @@ export default function Dashboard({ user, onLogout }) {
   );
 
   const sidebarItems = [
-    { id: "overview", label: "Overview", icon: Home },
-    { id: "practice", label: "Practice", icon: PlayCircle },
-    { id: "pyqs", label: "PYQs", icon: Library },
-    { id: "mocks", label: "Mocks", icon: FileText },
-    { id: "analytics", label: "Analytics", icon: LineChart },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "home", label: "Dashboard", icon: Home, action: () => { setSelectedExam(null); setMode(null); } },
+    { id: "pyqs", label: "PYQs", icon: Library, action: () => setMode("pyq") },
+    { id: "mocks", label: "Mock Tests", icon: FileText, action: () => setMode("mock") },
+    { id: "mentor", label: "Mentor Connect", icon: User, action: () => window.open("https://airtable.com", "_blank") },
+    { id: "predictor", label: "College Predictor", icon: BarChart3, locked: true },
+    { id: "counsel", label: "College Counseling", icon: GraduationCap, locked: true },
+    { id: "settings", label: "Settings", icon: Settings, action: () => {} },
+    { id: "logout", label: "Logout", icon: LogOut, action: () => onLogout?.() },
   ];
 
   const selectedExamsList = useMemo(
@@ -140,21 +144,31 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-5 grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)_300px] gap-4">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-5 grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)_300px] gap-4">
         {/* Left Sidebar */}
         <aside className="hidden lg:block">
           <nav className="rounded-2xl bg-white ring-1 ring-slate-200 p-2">
-            {sidebarItems.map(({ id, label, icon: Icon }) => (
+            {sidebarItems.map(({ id, label, icon: Icon, locked, action }) => (
               <button
                 key={id}
-                className="w-full flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] text-slate-700 hover:bg-slate-50"
+                disabled={locked}
                 onClick={() => {
-                  if (id === "pyqs") setMode("pyq");
-                  if (id === "mocks") setMode("mock");
+                  if (locked) return;
+                  if (typeof action === "function") action();
                 }}
+                className={`group w-full flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-[13px] transition ring-1 ring-transparent hover:ring-sky-200 hover:bg-sky-50/40 hover:shadow-[0_0_0_3px_rgba(56,189,248,0.15)] ${
+                  locked ? "text-slate-400 cursor-not-allowed" : "text-slate-700"
+                }`}
               >
-                <Icon className="h-4 w-4 text-slate-500" />
-                <span>{label}</span>
+                <span className="flex items-center gap-2">
+                  <Icon className={`h-4 w-4 ${locked ? "text-slate-300" : "text-slate-500"}`} />
+                  <span>{label}</span>
+                </span>
+                {locked ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
+                    <Lock className="h-3.5 w-3.5" /> Coming Soon
+                  </span>
+                ) : null}
               </button>
             ))}
           </nav>
