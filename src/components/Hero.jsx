@@ -1,5 +1,6 @@
-import { ArrowRight, Star, PlayCircle, TrendingUp, ShieldCheck } from "lucide-react";
+import { ArrowRight, Star, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -15,6 +16,64 @@ const fadeUp = {
 };
 
 export default function Hero() {
+  const baseUrl = useMemo(() => {
+    const raw = import.meta.env.VITE_BACKEND_URL || "";
+    return raw ? raw.replace(/\/$/, "") : "";
+  }, []);
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState("start"); // start | otp | success
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [demoOtp, setDemoOtp] = useState("");
+
+  const validStart = name.trim().length >= 2 && phone.trim().length >= 8;
+  const validOtp = otp.trim().length >= 4;
+
+  async function handleStart(e) {
+    e.preventDefault();
+    if (!validStart || !baseUrl) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`${baseUrl}/api/auth/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), phone: phone.trim() })
+      });
+      if (!res.ok) throw new Error((await res.json()).detail || "Failed to start OTP");
+      const data = await res.json();
+      setDemoOtp(data.demo_otp || "");
+      setStep("otp");
+    } catch (err) {
+      setError(err?.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleVerify(e) {
+    e.preventDefault();
+    if (!validOtp || !baseUrl) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`${baseUrl}/api/auth/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phone.trim(), otp: otp.trim() })
+      });
+      if (!res.ok) throw new Error((await res.json()).detail || "Invalid OTP");
+      setStep("success");
+    } catch (err) {
+      setError(err?.message || "Verification failed. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <section className="relative overflow-hidden">
       {/* Background gradient */}
@@ -70,7 +129,7 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Two-column hero: Left pitch, Right visual */}
+        {/* Two-column hero: Left pitch, Right auth form */}
         <div className="mt-8 grid lg:grid-cols-2 gap-10 items-center">
           {/* Left: pitch */}
           <motion.div variants={container} initial="hidden" animate="show" className="text-center lg:text-left">
@@ -97,127 +156,146 @@ export default function Hero() {
                 Trusted by 1,200+ students
               </div>
               <div className="hidden sm:flex items-center gap-2">
-                <PlayCircle className="h-4 w-4 text-sky-500" />
-                2 min product tour
+                <ShieldCheck className="h-4 w-4 text-sky-500" />
+                Safe OTP login
               </div>
-            </motion.div>
-
-            {/* CTAs */}
-            <motion.div variants={fadeUp} className="mt-8 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-6 py-3.5 font-semibold shadow-sm shadow-sky-200 transition">
-                👉 Login with OTP (Free)
-              </button>
-              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 ring-1 ring-sky-200 transition">
-                🔍 Browse PYQs Without Login
-                <ArrowRight className="h-4 w-4" />
-              </button>
             </motion.div>
           </motion.div>
 
-          {/* Right: animated visual stack */}
+          {/* Right: Auth card */}
           <div className="relative">
-            {/* Glow halo */}
             <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-tr from-sky-200/40 via-emerald-200/30 to-transparent blur-2xl -z-10" />
-
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: "easeOut" }}
               className="mx-auto w-full max-w-md lg:max-w-sm"
             >
-              {/* Card stack */}
-              <div className="relative">
-                {/* Back card */}
-                <motion.div
-                  initial={{ rotate: -6, y: 20, opacity: 0 }}
-                  animate={{ rotate: -6, y: 0, opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.1 }}
-                  className="absolute -top-6 -left-6 right-6 h-40 rounded-2xl bg-white/70 backdrop-blur ring-1 ring-slate-200 shadow-lg" />
-
-                {/* Middle card */}
-                <motion.div
-                  initial={{ rotate: 6, y: 10, opacity: 0 }}
-                  animate={{ rotate: 6, y: 0, opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.15 }}
-                  className="absolute -bottom-8 -right-4 left-4 h-40 rounded-2xl bg-gradient-to-br from-sky-50 to-emerald-50 ring-1 ring-slate-200 shadow-lg" />
-
-                {/* Foreground dashboard mock */}
-                <motion.div
-                  initial={{ scale: 0.96, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.05 }}
-                  className="relative rounded-2xl bg-white ring-1 ring-slate-200 shadow-xl p-5"
-                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between">
-                    <div className="h-8 w-28 rounded-md bg-slate-100" />
-                    <div className="flex items-center gap-1.5">
-                      <span className="h-2.5 w-2.5 rounded-full bg-slate-200" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-slate-200" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-slate-200" />
-                    </div>
+              <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 shadow-xl p-5">
+                <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold text-slate-900">Start free with OTP</div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-slate-200" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-slate-200" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-slate-200" />
                   </div>
+                </div>
 
-                  {/* Content rows */}
-                  <div className="mt-4 grid grid-cols-3 gap-4">
-                    <div className="col-span-2 rounded-xl ring-1 ring-slate-200 p-4">
-                      <div className="h-4 w-24 bg-slate-100 rounded" />
-                      <div className="mt-3 flex items-end gap-1">
-                        {Array.from({ length: 10 }).map((_, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ scaleY: 0.6 }}
-                            animate={{ scaleY: [0.6, 1, 0.8, 1] }}
-                            transition={{ duration: 2, delay: i * 0.05, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
-                            className="w-3 rounded-t bg-gradient-to-t from-sky-300 to-sky-500"
-                            style={{ height: 40 + (i % 4) * 10 }}
-                          />
-                        ))}
-                      </div>
+                {step === "start" && (
+                  <form onSubmit={handleStart} className="mt-4 space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700">Full name</label>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g. Ananya Sharma"
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      />
                     </div>
-                    <div className="rounded-xl ring-1 ring-slate-200 p-4">
-                      <div className="h-4 w-20 bg-slate-100 rounded" />
-                      <div className="mt-3 space-y-2">
-                        {[0, 1, 2].map((i) => (
-                          <div key={i} className="h-3 rounded bg-gradient-to-r from-emerald-200 to-emerald-400/70" />
-                        ))}
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700">Phone number</label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="10-digit mobile"
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      />
                     </div>
-                  </div>
 
-                  {/* Footer row */}
-                  <div className="mt-4 grid grid-cols-3 gap-4">
-                    {[0, 1, 2].map((i) => (
-                      <div key={i} className="rounded-xl ring-1 ring-slate-200 p-4">
-                        <div className="h-3.5 w-16 bg-slate-100 rounded" />
-                        <div className="mt-3 flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-md bg-sky-100" />
-                          <div className="h-2.5 flex-1 rounded bg-slate-100" />
+                    {error && (
+                      <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{error}</div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={!validStart || loading || !baseUrl}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 hover:bg-sky-700 disabled:bg-sky-300 text-white px-4 py-3 font-semibold shadow-sm shadow-sky-200 transition"
+                    >
+                      {loading ? "Sending OTP…" : "Login with OTP"}
+                    </button>
+
+                    <p className="text-xs text-slate-500 text-center">We’ll send a 6-digit code to verify your number.</p>
+                  </form>
+                )}
+
+                {step === "otp" && (
+                  <form onSubmit={handleVerify} className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm text-slate-700">Enter the OTP sent to</div>
+                        <div className="text-sm font-semibold text-slate-900">{phone}</div>
+                      </div>
+                      {demoOtp && (
+                        <span className="text-[10px] rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 px-2 py-1">Demo OTP: {demoOtp}</span>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700">6-digit code</label>
+                      <input
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
+                        placeholder="••••••"
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 tracking-widest text-center text-lg text-slate-900 placeholder-slate-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      />
+                    </div>
+
+                    {error && (
+                      <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{error}</div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={!validOtp || loading || !baseUrl}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 text-white px-4 py-3 font-semibold shadow-sm shadow-emerald-200 transition"
+                    >
+                      {loading ? "Verifying…" : "Verify & Continue"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleStart}
+                      disabled={loading || !baseUrl}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium text-sky-700 bg-sky-50 hover:bg-sky-100 ring-1 ring-sky-200 transition"
+                    >
+                      Resend OTP
+                    </button>
+                  </form>
+                )}
+
+                {step === "success" && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 text-center">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 px-3 py-1 text-sm font-semibold">
+                      <ShieldCheck className="h-4 w-4" /> Phone verified
+                    </div>
+                    <h3 className="mt-4 text-xl font-bold text-slate-900">Welcome, {name.split(" ")[0] || "there"}! 🎉</h3>
+                    <p className="mt-2 text-slate-600">Your personalized plan is ready. You can now explore PYQs, take mock tests, and connect with mentors.</p>
+                    <div className="mt-6 grid grid-cols-3 gap-4 text-left">
+                      {[0, 1, 2].map((i) => (
+                        <div key={i} className="rounded-xl ring-1 ring-slate-200 p-4">
+                          <div className="h-3.5 w-16 bg-slate-100 rounded" />
+                          <div className="mt-3 flex items-center gap-2">
+                            <div className="h-8 w-8 rounded-md bg-sky-100" />
+                            <div className="h-2.5 flex-1 rounded bg-slate-100" />
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-
-                {/* Floating badges */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: [0, -6, 0] }}
-                  transition={{ duration: 2.4, delay: 0.4, repeat: Infinity, repeatType: "reverse" }}
-                  className="absolute -left-4 -top-6 inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur px-3 py-1.5 ring-1 ring-slate-200 shadow-md"
-                >
-                  <TrendingUp className="h-4 w-4 text-emerald-600" />
-                  <span className="text-xs font-medium text-slate-700">+18% mock test scores</span>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: [0, -6, 0] }}
-                  transition={{ duration: 2.8, delay: 0.6, repeat: Infinity, repeatType: "reverse" }}
-                  className="absolute -right-3 -bottom-8 inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur px-3 py-1.5 ring-1 ring-slate-200 shadow-md"
-                >
-                  <ShieldCheck className="h-4 w-4 text-sky-600" />
-                  <span className="text-xs font-medium text-slate-700">Personalized plan ready</span>
-                </motion.div>
+                      ))}
+                    </div>
+                    <div className="mt-6 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                      <a href="#pyqs" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-6 py-3.5 font-semibold shadow-sm shadow-sky-200 transition">
+                        👉 Start practicing PYQs
+                      </a>
+                      <a href="#features" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 ring-1 ring-sky-200 transition">
+                        Explore features
+                        <ArrowRight className="h-4 w-4" />
+                      </a>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           </div>
