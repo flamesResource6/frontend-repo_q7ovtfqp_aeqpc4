@@ -224,7 +224,7 @@ export default function Dashboard({ user, onLogout }) {
         <div className="relative">
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-300/50 to-transparent" />
         </div>
-        <div className="w-full h-14 flex items-center justify-between">
+        <div className="w-full h-14 flex items-center justify-between px-3 sm:px-4">
           <div className="flex items-center gap-3 w-full">
             <div className="relative h-8 w-8 rounded-md bg-white ring-1 ring-slate-200 grid place-items-center shadow-sm">
               <Layers className="h-4 w-4 text-sky-700" />
@@ -270,7 +270,7 @@ export default function Dashboard({ user, onLogout }) {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className="w-full"
+            className="w-full px-3 sm:px-4"
           >
             <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)_330px] gap-4 lg:gap-6 py-6 lg:py-8">
               {/* Left rail */}
