@@ -112,6 +112,13 @@ export default function Dashboard({ user, onLogout }) {
     );
   }
 
+  function goToBuilder(targetMode) {
+    setMode(targetMode);
+    // Smooth scroll to the builder/stepper area
+    const el = document.getElementById("builder-stepper");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
     <section className="min-h-screen bg-gradient-to-b from-white via-sky-50/40 to-white">
       {/* Top bar */}
@@ -233,6 +240,60 @@ export default function Dashboard({ user, onLogout }) {
               </div>
             </div>
           </div>
+
+          {/* PYQs Module - Hero */}
+          <div className="rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-white ring-1 ring-emerald-100 p-5 mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="h-11 w-11 rounded-2xl bg-emerald-100 ring-1 ring-emerald-200 grid place-items-center">
+                  <BookOpen className="h-6 w-6 text-emerald-700" />
+                </div>
+                <div>
+                  <div className="text-[18px] sm:text-[20px] font-bold text-slate-900">Access Past Year Questions for all exams</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {["JEE Main","JEE Advanced","BITSAT","Board Exams","EAMCET","VITEEE"].map((label) => (
+                      <span key={label} className="text-[11px] px-2 py-1 rounded-full bg-white ring-1 ring-slate-200 text-slate-700">{label}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <button onClick={() => goToBuilder("pyq")} className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-semibold shadow-sm shadow-emerald-200">
+                Start Practicing
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Mock Test Module - Two Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-xl bg-sky-100 ring-1 ring-sky-200 grid place-items-center">
+                  <FileText className="h-5 w-5 text-sky-700" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-[15px] font-semibold text-slate-900">Full Length Mock Tests</div>
+                  <div className="mt-1 text-[12px] text-slate-600">Auto-graded, exam-pattern based tests</div>
+                  <button onClick={() => goToBuilder("mock")} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-sky-600 text-white hover:bg-sky-700">Start Test</button>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-xl bg-violet-100 ring-1 ring-violet-200 grid place-items-center">
+                  <PlayCircle className="h-5 w-5 text-violet-700" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-[15px] font-semibold text-slate-900">Chapter-wise Practice Tests</div>
+                  <div className="mt-1 text-[12px] text-slate-600">Auto-graded, exam-pattern based tests</div>
+                  <button onClick={() => goToBuilder("mock")} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-violet-600 text-white hover:bg-violet-700">Start Test</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Builder / Stepper anchor */}
+          <div id="builder-stepper" />
 
           {/* Stepper */}
           <div className="mb-4 flex items-center gap-2 text-[12px] text-slate-600">
