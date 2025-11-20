@@ -119,6 +119,50 @@ export default function Dashboard({ user, onLogout }) {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  // Mentors data for slider
+  const mentors = [
+    {
+      id: 1,
+      name: "Ananya Sharma",
+      tag: "AIR 142 · IIT Bombay",
+      avatar: "https://i.pravatar.cc/160?img=5",
+      specialty: "Chemistry · Strategy",
+    },
+    {
+      id: 2,
+      name: "Rohit Verma",
+      tag: "AIR 321 · IIIT Hyderabad",
+      avatar: "https://i.pravatar.cc/160?img=12",
+      specialty: "Maths · Time Mgmt",
+    },
+    {
+      id: 3,
+      name: "Sana Iqbal",
+      tag: "AIR 89 · IIT Delhi",
+      avatar: "https://i.pravatar.cc/160?img=32",
+      specialty: "Physics · PYQ tactics",
+    },
+    {
+      id: 4,
+      name: "Aditya Rao",
+      tag: "AIR 510 · IIIT Hyderabad",
+      avatar: "https://i.pravatar.cc/160?img=22",
+      specialty: "Maths · Mock review",
+    },
+    {
+      id: 5,
+      name: "Meera Joshi",
+      tag: "AIR 230 · IIT Kharagpur",
+      avatar: "https://i.pravatar.cc/160?img=47",
+      specialty: "Chem · Doubt clearing",
+    },
+  ];
+
+  function openMentorForm() {
+    // Redirect to Airtable form (placeholder URL; replace with actual form link if available)
+    window.open("https://airtable.com", "_blank");
+  }
+
   return (
     <section className="min-h-screen bg-gradient-to-b from-white via-sky-50/40 to-white">
       {/* Top bar */}
@@ -288,6 +332,55 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="mt-1 text-[12px] text-slate-600">Auto-graded, exam-pattern based tests</div>
                   <button onClick={() => goToBuilder("mock")} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-violet-600 text-white hover:bg-violet-700">Start Test</button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mentor Connect Module */}
+          <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-5 mb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <div className="text-[16px] font-bold text-slate-900">Talk to a Mentor 1-on-1</div>
+                <div className="text-[12px] text-slate-600 mt-0.5">Book a call with IIT & IIIT Hyderabad rankers</div>
+              </div>
+              <button
+                onClick={openMentorForm}
+                className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-[13px] font-semibold"
+              >
+                Book a Mentor Session
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Slider */}
+            <div className="mt-4 -mx-2 overflow-x-auto">
+              <div className="px-2 flex gap-3 min-w-max">
+                {mentors.map((m) => (
+                  <div key={m.id} className="group w-[240px] shrink-0 rounded-2xl ring-1 ring-slate-200 bg-gradient-to-b from-slate-50 to-white hover:ring-sky-200 hover:shadow-[0_0_0_3px_rgba(56,189,248,0.08)] transition">
+                    <div className="relative h-36 w-full overflow-hidden rounded-t-2xl">
+                      <img
+                        src={m.avatar}
+                        alt={m.name}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute top-2 left-2 text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white ring-1 ring-emerald-500/80">
+                        Mentor
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <div className="text-[14px] font-semibold text-slate-900 line-clamp-1">{m.name}</div>
+                      <div className="text-[11px] text-slate-600">{m.tag}</div>
+                      <div className="mt-2 text-[11px] text-slate-500">{m.specialty}</div>
+                      <button
+                        onClick={openMentorForm}
+                        className="mt-3 w-full px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-sky-600 text-white hover:bg-sky-700"
+                      >
+                        Book Session
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
