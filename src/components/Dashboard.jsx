@@ -42,6 +42,17 @@ const CLASS_LEVELS = [
   { id: "dropper", label: "Dropper" },
 ];
 
+// New: upcoming entrance deadlines (static sample)
+const DEADLINES = [
+  { name: "IIT JEE Main (Session 2)", date: "Mar 12, 2025", url: "https://jeemain.nta.nic.in/" },
+  { name: "EAMCET", date: "Apr 3, 2025", url: "https://eamcet.tsche.ac.in/" },
+  { name: "BITSAT", date: "Mar 29, 2025", url: "https://www.bitsadmission.com/" },
+  { name: "VITEEE", date: "Mar 15, 2025", url: "https://viteee.vit.ac.in/" },
+  { name: "WBJEE", date: "Feb 28, 2025", url: "https://wbjeeb.nic.in/" },
+  { name: "MHT-CET", date: "Mar 20, 2025", url: "https://cetcell.mahacet.org/" },
+  { name: "SRMJEEE", date: "Mar 18, 2025", url: "https://applications.srmist.edu.in/btech" },
+];
+
 export default function Dashboard({ user, onLogout }) {
   const navigate = useNavigate();
 
@@ -390,6 +401,31 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                   <div className="mt-1.5 text-[13px] text-slate-600 relative z-10">Get 7 days Pro for every friend who joins.</div>
                   <button onClick={copyInvite} className="relative z-10 mt-2.5 px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">{copied ? 'Copied!' : 'Copy link'}</button>
+                </div>
+
+                {/* Upcoming entrance deadlines */}
+                <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden mt-3">
+                  <div className="absolute -right-10 -top-10 h-16 w-16 bg-sky-300/10 rounded-full blur-2xl" />
+                  <div className="relative z-10">
+                    <div className="text-[12px] font-semibold tracking-wide uppercase text-slate-700">Upcoming entrance deadlines</div>
+                    <ul className="mt-2 divide-y divide-slate-200">
+                      {DEADLINES.slice(0, 7).map((item, idx) => (
+                        <li key={idx} className="flex items-center justify-between py-2">
+                          <div>
+                            <div className="text-[13px] font-medium text-slate-900 leading-tight">{item.name}</div>
+                            <div className="text-[11px] text-slate-500">Deadline: {item.date}</div>
+                          </div>
+                          <button
+                            onClick={() => window.open(item.url, '_blank')}
+                            className="ml-3 inline-flex items-center justify-center h-8 w-8 rounded-md ring-1 ring-slate-200 text-slate-700 hover:bg-sky-50"
+                            aria-label={`Apply for ${item.name}`}
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </aside>
 
