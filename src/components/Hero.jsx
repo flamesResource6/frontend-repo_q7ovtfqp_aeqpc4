@@ -1,6 +1,7 @@
 import { ArrowRight, Star, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const container = {
   hidden: { opacity: 0 },
@@ -20,6 +21,8 @@ export default function Hero() {
     const raw = import.meta.env.VITE_BACKEND_URL || "";
     return raw ? raw.replace(/\/$/, "") : "";
   }, []);
+
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -67,6 +70,14 @@ export default function Hero() {
       });
       if (!res.ok) throw new Error((await res.json()).detail || "Invalid OTP");
       setStep("success");
+      // Persist lightweight session and go to dashboard
+      try {
+        localStorage.setItem(
+          "examsaathi:user",
+          JSON.stringify({ name: name.trim(), phone: phone.trim(), createdAt: Date.now() })
+        );
+      } catch {}
+      navigate("/dashboard");
     } catch (err) {
       setError(err?.message || "Verification failed. Try again.");
     } finally {
@@ -256,26 +267,12 @@ export default function Hero() {
                       <ShieldCheck className="h-4 w-4" /> Phone verified
                     </div>
                     <h3 className="mt-3 text-lg font-bold text-slate-900">Welcome, {name.split(" ")[0] || "there"}! 🎉</h3>
-                    <p className="mt-2 text-slate-600 text-[15px]">Your personalized plan is ready. Explore PYQs, take mock tests, and connect with mentors.</p>
-                    <div className="mt-5 grid grid-cols-3 gap-3 text-left">
-                      {[0, 1, 2].map((i) => (
-                        <div key={i} className="rounded-xl ring-1 ring-slate-200 p-3">
-                          <div className="h-3 w-14 bg-slate-100 rounded" />
-                          <div className="mt-2.5 flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-md bg-sky-100" />
-                            <div className="h-2 flex-1 rounded bg-slate-100" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-5 flex flex-col sm:flex-row items-center gap-3">
-                      <a href="#pyqs" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-5 py-3 font-semibold shadow-sm shadow-sky-200 transition">
-                        👉 Start practicing PYQs
-                      </a>
-                      <a href="#features" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 ring-1 ring-sky-200 transition">
-                        Explore features
+                    <p className="mt-2 text-slate-600 text-[15px]">Redirecting to your dashboard…</p>
+                    <div className="mt-4">
+                      <button onClick={() => navigate('/dashboard')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-5 py-3 font-semibold shadow-sm shadow-sky-200 transition">
+                        Go now
                         <ArrowRight className="h-4 w-4" />
-                      </a>
+                      </button>
                     </div>
                   </motion.div>
                 )}
