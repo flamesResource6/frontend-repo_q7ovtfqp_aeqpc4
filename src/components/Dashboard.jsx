@@ -15,7 +15,6 @@ import {
   GraduationCap,
   Info,
   Bell,
-  Calendar,
   Trophy,
   Share2,
   Smartphone,
@@ -25,7 +24,6 @@ import {
   Flame,
   Target,
   Award,
-  Star,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -60,12 +58,17 @@ export default function Dashboard({ user, onLogout }) {
   const [showExamPicker, setShowExamPicker] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // New modal state for year/scope selection
+  // Modal states
   const [flowModalOpen, setFlowModalOpen] = useState(false);
   const [flowType, setFlowType] = useState(/** @type {"mock"|"pyq"|null} */(null));
   const [flowStep, setFlowStep] = useState(1); // 1: years, 2: scope
   const [years, setYears] = useState(/** @type {1|3|5|10|null} */(null));
+  const [selectedYear, setSelectedYear] = useState(/** @type {number|null} */(null));
   const [scope, setScope] = useState(/** @type {"full"|"math"|"physics"|"chemistry"|null} */(null));
+
+  const [roadmapModalOpen, setRoadmapModalOpen] = useState(false);
+  const [roadmapWeeks, setRoadmapWeeks] = useState(4);
+  const [roadmapFocus, setRoadmapFocus] = useState({ math: true, physics: true, chemistry: true });
 
   // Load prefs
   useEffect(() => {
@@ -145,6 +148,12 @@ export default function Dashboard({ user, onLogout }) {
     [selectedExam]
   );
 
+  // Derived: last 10 years list
+  const yearsList = useMemo(() => {
+    const now = new Date().getFullYear();
+    return Array.from({ length: 10 }, (_, i) => now - i);
+  }, []);
+
   // Sidebar items
   const sidebarItems = [
     { id: "home", label: "Overview", icon: Home, action: () => {} },
@@ -171,27 +180,40 @@ export default function Dashboard({ user, onLogout }) {
     setFlowModalOpen(true);
   }
 
-  // Open PYQ score simulator with preset years (default 10) and jump to scope step
-  function openPyqScore(presetYears = 10) {
+  // Open PYQ score with either a specific year (from dropdown) or range shortcut
+  function openPyqScore(presetYears = null) {
     if (!selectedExam) {
       setShowExamPicker(true);
       return;
     }
     setMode('pyq');
     setFlowType('pyq');
-    setYears(presetYears);
+    if (presetYears) {
+      setYears(presetYears);
+      setSelectedYear(null);
+    } else {
+      // Use specific year if chosen from dropdown
+      setYears(null);
+    }
     setScope(null);
-    setFlowStep(2);
+    setFlowStep(2); // jump to scope selection
     setFlowModalOpen(true);
   }
 
   function goToSelection(selScope) {
-    if (!selectedExam || !flowType || !years) return;
-    const q = new URLSearchParams({ exam: selectedExam, years: String(years), scope: selScope }).toString();
-    if (flowType === "mock") {
-      navigate(`/mock/config?${q}`);
+    if (!selectedExam || !flowType) return;
+    // Require either years (range) or selectedYear (specific)
+    if (flowType === 'pyq' && !years && !selectedYear) return;
+
+    const params = new URLSearchParams({ exam: selectedExam, scope: selScope });
+    if (flowType === 'pyq') {
+      if (selectedYear) params.set('year', String(selectedYear));
+      if (years) params.set('years', String(years));
+      navigate(`/practice?${params.toString()}`);
     } else {
-      navigate(`/practice?${q}`);
+      // mock flow
+      if (!years) params.set('years', '1'); // default if not chosen
+      navigate(`/mock/config?${params.toString()}`);
     }
     closeFlow();
   }
@@ -201,6 +223,7 @@ export default function Dashboard({ user, onLogout }) {
     setFlowType(null);
     setFlowStep(1);
     setYears(null);
+    setSelectedYear(null);
     setScope(null);
   }
 
@@ -212,6 +235,24 @@ export default function Dashboard({ user, onLogout }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {}
+  }
+
+  // Roadmap helpers
+  function openRoadmap() {
+    if (!selectedExam) {
+      setShowExamPicker(true);
+      return;
+    }
+    setRoadmapModalOpen(true);
+  }
+  function buildRoadmap() {
+    const focus = Object.entries(roadmapFocus)
+      .filter(([, v]) => v)
+      .map(([k]) => k)
+      .join(',');
+    const qs = new URLSearchParams({ exam: selectedExam || '', weeks: String(roadmapWeeks), focus });
+    setRoadmapModalOpen(false);
+    navigate(`/roadmap?${qs.toString()}`);
   }
 
   const subjectTiles = [
@@ -332,7 +373,7 @@ export default function Dashboard({ user, onLogout }) {
 
               {/* Center column */}
               <main className="space-y-6 lg:space-y-8">
-                {/* Top selection card (no mock/PYQ buttons) */}
+                {/* Top selection card */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
                   <div className="absolute -right-10 -top-10 h-36 w-36 bg-sky-300/10 rounded-full blur-2xl" />
                   <div className="absolute -left-10 -bottom-10 h-36 w-36 bg-emerald-300/10 rounded-full blur-2xl" />
@@ -356,7 +397,7 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </motion.div>
 
-                {/* KPI row (larger type, removed Streak) */}
+                {/* KPI row (larger type, without Streak) */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                   {[
                     { title: 'Accuracy', value: '82%', sub: '+4% this week', icon: Target, tint: 'from-sky-200/30' },
@@ -379,7 +420,7 @@ export default function Dashboard({ user, onLogout }) {
                   ))}
                 </motion.div>
 
-                {/* Practice section with subjects (larger type) */}
+                {/* Practice section */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
                   <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(400px_120px_at_20%_-10%, black, transparent)" }}>
                     <div className="absolute left-0 top-0 h-40 w-64 bg-gradient-to-br from-sky-200/40 to-emerald-200/30 blur-2xl" />
@@ -413,7 +454,7 @@ export default function Dashboard({ user, onLogout }) {
                   </button>
                 </motion.div>
 
-                {/* Action cards row: includes new cards */}
+                {/* Action cards row */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
                   {/* Full-Length Mock Tests */}
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
@@ -430,7 +471,7 @@ export default function Dashboard({ user, onLogout }) {
                     </div>
                   </div>
 
-                  {/* Past Year Score Simulator */}
+                  {/* Past Year Score Simulator - UPDATED */}
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
                     <div className="absolute -left-8 -bottom-8 h-24 w-24 bg-emerald-300/10 rounded-full blur-xl" />
                     <div className="flex items-start gap-4 relative z-10">
@@ -438,15 +479,32 @@ export default function Dashboard({ user, onLogout }) {
                         <Trophy className="h-6 w-6 text-emerald-700" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-[18px] font-semibold text-slate-900">Appear for Past Year Papers</div>
-                        <div className="mt-1 text-[14px] text-slate-600">Choose up to 10 years and see your score with current prep.</div>
+                        <div className="text-[18px] font-semibold text-slate-900">Appear for Real Prev. Year Papers</div>
+                        <div className="mt-1 text-[14px] text-slate-600">Pick a specific year or try a range to estimate your score.</div>
+
+                        {/* Year dropdown */}
+                        <div className="mt-3 flex items-center gap-3">
+                          <label className="text-[13px] text-slate-600">Year</label>
+                          <select
+                            value={selectedYear ?? ''}
+                            onChange={(e) => setSelectedYear(Number(e.target.value))}
+                            className="text-[13px] rounded-md ring-1 ring-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 w-40"
+                          >
+                            <option value="" disabled>Select</option>
+                            {yearsList.map((y) => (
+                              <option key={y} value={y}>{y}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Range shortcuts and CTA */}
                         <div className="mt-4 flex flex-wrap items-center gap-2">
                           {[1,3,5,10].map((y) => (
                             <button key={y} onClick={() => openPyqScore(y)} className="px-3 py-2 rounded-md text-[13px] font-medium ring-1 ring-slate-200 hover:bg-sky-50">
                               {y} yr{y>1?'s':''}
                             </button>
                           ))}
-                          <button onClick={() => openPyqScore(10)} className="ml-auto px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Simulate Score</button>
+                          <button onClick={() => openPyqScore(null)} className="ml-auto px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Simulate Score</button>
                         </div>
                       </div>
                     </div>
@@ -480,7 +538,7 @@ export default function Dashboard({ user, onLogout }) {
                       <div className="flex-1">
                         <div className="text-[18px] font-semibold text-slate-900">Personalised Revision Roadmap</div>
                         <div className="mt-1 text-[14px] text-slate-600">A step-by-step plan tailored to your weak areas.</div>
-                        <button onClick={() => navigate(`/roadmap?exam=${selectedExam || ''}`)} className="mt-4 px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Build Roadmap</button>
+                        <button onClick={openRoadmap} className="mt-4 px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Build Roadmap</button>
                       </div>
                     </div>
                   </div>
@@ -523,8 +581,6 @@ export default function Dashboard({ user, onLogout }) {
               {/* Right rail */}
               <aside className="hidden lg:block">
                 <div className="space-y-4">
-                  {/* Removed Upcoming */}
-
                   {/* Progress snapshot (kept) */}
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
                     <div className="absolute -left-6 -bottom-6 h-16 w-16 bg-emerald-300/10 rounded-full blur-xl" />
@@ -558,9 +614,6 @@ export default function Dashboard({ user, onLogout }) {
                     <div className="mt-2 text-[14px] text-slate-600 relative z-10">Get 7 days Pro for every friend who joins.</div>
                     <button onClick={copyInvite} className="relative z-10 mt-3 px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">{copied ? 'Copied!' : 'Copy link'}</button>
                   </div>
-
-                  {/* Removed Daily goal */}
-                  {/* Removed Get the app */}
                 </div>
               </aside>
             </div>
@@ -594,7 +647,7 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </div>
 
-      {/* Exam Picker Modal (if exam not selected) */}
+      {/* Exam Picker Modal */}
       <AnimatePresence>
         {showExamPicker && (
           <motion.div
@@ -629,7 +682,7 @@ export default function Dashboard({ user, onLogout }) {
         )}
       </AnimatePresence>
 
-      {/* Flow Modal: step 1 (years) -> step 2 (scope) */}
+      {/* Flow Modal: years/scope or single year scope */}
       <AnimatePresence>
         {flowModalOpen && (
           <motion.div
@@ -652,8 +705,8 @@ export default function Dashboard({ user, onLogout }) {
                 </button>
               </div>
 
-              {/* Step content */}
-              {flowStep === 1 && (
+              {/* Step 1: only for ranges in mock, or if no single year picked */}
+              {flowType === 'pyq' && !selectedYear && flowStep === 1 && (
                 <div className="p-4">
                   <div className="text-[14px] text-slate-700 font-medium">Select year range</div>
                   <div className="mt-3 grid grid-cols-4 gap-2">
@@ -666,6 +719,7 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
               )}
 
+              {/* Step 2: scope selection */}
               {flowStep === 2 && (
                 <div className="p-4">
                   <div className="text-[14px] text-slate-700 font-medium">Choose scope</div>
@@ -677,11 +731,53 @@ export default function Dashboard({ user, onLogout }) {
                     ))}
                   </div>
                   <div className="mt-4 flex items-center justify-between text-[13px] text-slate-600">
-                    <button onClick={() => setFlowStep(1)} className="underline decoration-slate-300 hover:text-slate-900">Back</button>
-                    <div className="text-slate-500">{years} yr{years && years>1?'s':''} selected</div>
+                    {flowType === 'pyq' && !selectedYear ? (
+                      <button onClick={() => setFlowStep(1)} className="underline decoration-slate-300 hover:text-slate-900">Back</button>
+                    ) : <span />}
+                    <div className="text-slate-500">
+                      {selectedYear ? `Year ${selectedYear}` : years ? `${years} ${years>1?'years':'year'} selected` : ''}
+                    </div>
                   </div>
                 </div>
               )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Roadmap Modal */}
+      <AnimatePresence>
+        {roadmapModalOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm grid place-items-center p-4">
+            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} transition={{ duration: 0.2 }} className="w-full max-w-md rounded-2xl bg-white ring-1 ring-slate-200 shadow-xl overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                <div className="text-sm font-semibold text-slate-900">Build your revision roadmap</div>
+                <button onClick={() => setRoadmapModalOpen(false)} className="h-8 w-8 grid place-items-center rounded-md hover:bg-slate-50"><X className="h-4 w-4 text-slate-500" /></button>
+              </div>
+              <div className="p-4 space-y-4">
+                <div>
+                  <label className="text-[13px] text-slate-700">Duration (weeks)</label>
+                  <select value={roadmapWeeks} onChange={(e) => setRoadmapWeeks(Number(e.target.value))} className="mt-1 w-full rounded-md ring-1 ring-slate-200 px-3 py-2 text-[13px]">
+                    {[2,4,6,8,12].map(w => <option key={w} value={w}>{w} weeks</option>)}
+                  </select>
+                </div>
+                <div>
+                  <div className="text-[13px] text-slate-700">Focus areas</div>
+                  <div className="mt-2 grid grid-cols-3 gap-2">
+                    {[
+                      { id:'math', label:'Maths' },
+                      { id:'physics', label:'Physics' },
+                      { id:'chemistry', label:'Chemistry' },
+                    ].map(opt => (
+                      <label key={opt.id} className="inline-flex items-center gap-2 text-[13px]">
+                        <input type="checkbox" checked={roadmapFocus[opt.id]} onChange={(e) => setRoadmapFocus(prev => ({ ...prev, [opt.id]: e.target.checked }))} />
+                        <span>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <button onClick={buildRoadmap} className="w-full px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Generate Roadmap</button>
+              </div>
             </motion.div>
           </motion.div>
         )}
