@@ -4,6 +4,7 @@ import ExamsCarousel from "./components/ExamsCarousel";
 import Features from "./components/Features";
 import Testimonials from "./components/Testimonials";
 import CTA from "./components/CTA";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -14,11 +15,7 @@ function App() {
       <Features />
       <Testimonials />
       <CTA />
-      <footer className="py-8 border-t border-slate-200">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-500">
-          © {new Date().getFullYear()} Examsaathi. All rights reserved.
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
