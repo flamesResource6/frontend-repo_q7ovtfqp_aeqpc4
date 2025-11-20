@@ -225,6 +225,19 @@ export default function Dashboard({ user, onLogout }) {
             </div>
             <div className="text-[15px] font-semibold text-slate-900">ExamSaathi</div>
             <div className="hidden sm:block text-[12px] text-slate-500">| Built by IIT Bombay & IIIT Hyderabad alumni</div>
+            {/* Target exam dropdown in navbar */}
+            <div className="ml-3">
+              <select
+                value={selectedExam || ""}
+                onChange={(e) => setSelectedExam(e.target.value)}
+                className="text-[12px] rounded-lg ring-1 ring-slate-200 bg-white px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300"
+              >
+                {!selectedExam ? <option value="" disabled>Select exam</option> : null}
+                {EXAMS.map((ex) => (
+                  <option key={ex.id} value={ex.id}>{ex.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <button className="relative h-8 w-8 rounded-lg bg-white ring-1 ring-slate-200 text-slate-600 hover:bg-slate-50 grid place-items-center">
@@ -321,7 +334,7 @@ export default function Dashboard({ user, onLogout }) {
         {/* Main Content */}
         <main>
           {/* Welcome strip */}
-          <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4 mb-4">
+          <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4 mb-3">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-[12px] text-slate-600">Welcome back</div>
@@ -336,25 +349,9 @@ export default function Dashboard({ user, onLogout }) {
             </div>
           </div>
 
-          {/* Top controls: Exam dropdown + Tabs + Primary CTA */}
-          <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-3 mb-4">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-              {/* Exam dropdown */}
-              <div className="flex items-center gap-2">
-                <span className="text-[12px] text-slate-600">Target exam</span>
-                <select
-                  value={selectedExam || ""}
-                  onChange={(e) => setSelectedExam(e.target.value)}
-                  className="text-[13px] rounded-lg ring-1 ring-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300"
-                >
-                  {!selectedExam ? <option value="" disabled>Select exam</option> : null}
-                  {EXAMS.map((ex) => (
-                    <option key={ex.id} value={ex.id}>{ex.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Tabs */}
+          {/* Tabs + CTA bar (no exam selector here anymore) */}
+          <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-2 mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center rounded-xl ring-1 ring-slate-200 bg-slate-50 overflow-hidden">
                 <button
                   onClick={() => setMode("pyq")}
@@ -373,8 +370,6 @@ export default function Dashboard({ user, onLogout }) {
                   Mock Papers
                 </button>
               </div>
-
-              {/* Primary CTA */}
               <div className="flex items-center">
                 {mode === "pyq" ? (
                   <button onClick={startPractice} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-semibold shadow-sm shadow-emerald-200">
@@ -389,9 +384,6 @@ export default function Dashboard({ user, onLogout }) {
                 )}
               </div>
             </div>
-            {selectedExam ? (
-              <div className="mt-2 text-[12px] text-slate-500">Selected: {examLabel} · {mode === 'pyq' ? 'PYQ' : 'Mock Papers'}</div>
-            ) : null}
           </div>
 
           {/* 1. PYQs Module - Hero */}
