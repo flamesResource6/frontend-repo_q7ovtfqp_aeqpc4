@@ -5,16 +5,20 @@ export default function Hero() {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-sky-50 via-white to-white" />
-      {/* decorative blobs */}
-      <div className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full bg-sky-200/40 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl" />
+      {/* decorative blobs (softened for less clutter) */}
+      <div className="pointer-events-none absolute -top-24 -left-24 h-56 w-56 rounded-full bg-sky-200/30 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-24 h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10 pb-8">
-        {/* Mobile-first stack */}
+        {/* Two-column layout with CTAs moved to the right for desktop */}
         <div className="grid lg:grid-cols-2 gap-10 items-center">
-          {/* Left copy */}
+          {/* Left: Copy-only to reduce clutter */}
           <div className="text-center lg:text-left">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <div className="inline-flex items-center gap-2 rounded-full bg-sky-100 text-sky-700 px-3 py-1 text-xs font-medium ring-1 ring-sky-200">
                 <Star className="h-3.5 w-3.5 fill-sky-600 text-sky-600" />
                 Your all-in-one exam companion
@@ -28,29 +32,16 @@ export default function Hero() {
                 Instant access to PYQs, mock tests, ranker mentorship, and college guidance — everything you need in one place.
               </p>
 
-              {/* Trust badge */}
-              <div className="mt-4 inline-flex items-center gap-3 rounded-xl bg-white/80 backdrop-blur px-3 py-2 ring-1 ring-slate-200 shadow-sm">
+              {/* Trust badge - compact */}
+              <div className="mt-5 inline-flex items-center gap-3 rounded-xl bg-white/80 backdrop-blur px-3 py-2 ring-1 ring-slate-200 shadow-sm">
                 <BadgeCheck className="h-4 w-4 text-emerald-600" />
                 <span className="text-sm text-slate-700">Built by IIT Bombay & IIIT Hyderabad Alumni</span>
                 <img src="/iitr-mark.svg" alt="IIT Bombay" className="h-5 opacity-80" />
                 <img src="/iiith-mark.svg" alt="IIIT Hyderabad" className="h-5 opacity-80" />
               </div>
 
-              {/* CTAs */}
-              <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
-                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white px-5 py-3 font-medium shadow-sm">
-                  👉 Login with OTP (Free)
-                </button>
-                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 font-medium text-sky-700 bg-sky-50 hover:bg-sky-100 ring-1 ring-sky-200">
-                  🔍 Browse PYQs Without Login
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-
-              <p className="mt-2 text-xs text-slate-500">No password required.</p>
-
-              {/* Social proof mini */}
-              <div className="mt-6 flex items-center justify-center lg:justify-start gap-6 text-sm text-slate-500">
+              {/* Social proof simplified */}
+              <div className="mt-6 flex items-center justify-center lg:justify-start gap-3 text-sm text-slate-500">
                 <div className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                   Trusted by 1,200+ students
@@ -63,9 +54,30 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* Right visual */}
+          {/* Right: CTA card on top, mockup below (stacks on mobile) */}
           <div className="relative">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="mx-auto w-full max-w-md lg:max-w-none">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.05 }}
+              className="mx-auto w-full max-w-md lg:max-w-none"
+            >
+              {/* CTA Card */}
+              <div className="mb-5 rounded-2xl bg-white ring-1 ring-slate-200 shadow-lg p-4">
+                <p className="text-slate-800 font-semibold">Get started free</p>
+                <p className="text-xs text-slate-500 mt-0.5">No password required</p>
+                <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                  <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white px-5 py-3 font-medium shadow-sm">
+                    👉 Login with OTP (Free)
+                  </button>
+                  <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 font-medium text-sky-700 bg-sky-50 hover:bg-sky-100 ring-1 ring-sky-200">
+                    🔍 Browse PYQs Without Login
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Dashboard mockup */}
               <div className="relative rounded-2xl bg-white p-4 ring-1 ring-slate-200 shadow-xl">
                 {/* browser bar */}
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
