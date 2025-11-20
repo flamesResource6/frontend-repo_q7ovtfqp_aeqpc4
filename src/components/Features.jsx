@@ -61,10 +61,20 @@ function VisualMentor() {
     <div className="relative h-12 w-12 rounded-xl bg-cyan-50 ring-1 ring-white/60 shadow shadow-cyan-200/70 p-1.5">
       {/* Chat bubbles */}
       <div className="relative h-full">
-        <motion.div initial={{ x: -6, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 1.6 }} className="max-w-[80%] rounded-md bg-white ring-1 ring-slate-200 px-1.5 py-1 text-[9px] text-slate-700 shadow-sm">
+        <motion.div
+          initial={{ x: -6, opacity: 0.8 }}
+          animate={{ x: [-6, 0, -2, 0], opacity: [0.8, 1, 1, 1] }}
+          transition={{ duration: 2, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+          className="max-w-[80%] rounded-md bg-white ring-1 ring-slate-200 px-1.5 py-1 text-[9px] text-slate-700 shadow-sm"
+        >
           Got stuck at KCL…
         </motion.div>
-        <motion.div initial={{ x: 6, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.4, repeat: Infinity, repeatDelay: 1.6 }} className="mt-1 ml-auto max-w-[80%] rounded-md bg-sky-100 text-sky-800 ring-1 ring-white px-1.5 py-1 text-[9px] shadow-sm">
+        <motion.div
+          initial={{ x: 6, opacity: 0.8 }}
+          animate={{ x: [6, 0, 2, 0], opacity: [0.8, 1, 1, 1] }}
+          transition={{ duration: 2, delay: 0.4, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+          className="mt-1 ml-auto max-w-[80%] rounded-md bg-sky-100 text-sky-800 ring-1 ring-white px-1.5 py-1 text-[9px] shadow-sm"
+        >
           Try nodal method →
         </motion.div>
         {/* Typing dots */}
