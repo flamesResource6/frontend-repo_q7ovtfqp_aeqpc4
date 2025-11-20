@@ -18,11 +18,11 @@
   }
 
   body {
-    @apply antialiased;
+    @apply antialiased text-[15px];
   }
 }
 
-/* Custom utility classes for shadcn/ui patterns */
+/* Compact, classy tweaks */
 @layer utilities {
   .animate-in {
     animation-name: animateIn;
