@@ -419,29 +419,6 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </motion.div>
 
-                {/* KPI row (larger type, without Streak) */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {[
-                    { title: 'Accuracy', value: '82%', sub: '+4% this week', icon: Target, tint: 'from-sky-200/30' },
-                    { title: 'Avg Score', value: '178', sub: 'out of 300', icon: Award, tint: 'from-emerald-200/30' },
-                    { title: 'Questions', value: '462', sub: 'this month', icon: BookOpen, tint: 'from-sky-200/30' },
-                  ].map(({ title, value, sub, icon: Icon, tint }, idx) => (
-                    <div key={idx} className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
-                      <div className={`absolute -right-8 -top-8 h-24 w-24 bg-gradient-to-br ${tint} to-transparent blur-2xl`} />
-                      <div className="relative z-10 flex items-start gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-white ring-1 ring-slate-200 grid place-items-center">
-                          <Icon className="h-6 w-6 text-slate-800" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-[14px] text-slate-500">{title}</div>
-                          <div className="text-[24px] font-semibold text-slate-900">{value}</div>
-                          <div className="text-[12px] text-slate-500">{sub}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
-
                 {/* Practice section */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
                   <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(400px_120px_at_20%_-10%, black, transparent)" }}>
@@ -664,6 +641,27 @@ export default function Dashboard({ user, onLogout }) {
                       </div>
                     </div>
                   </div>
+
+                  {/* KPI cards moved to right rail */}
+                  {[
+                    { title: 'Accuracy', value: '82%', sub: '+4% this week', icon: Target, tint: 'from-sky-200/30' },
+                    { title: 'Avg Score', value: '178', sub: 'out of 300', icon: Award, tint: 'from-emerald-200/30' },
+                    { title: 'Questions', value: '462', sub: 'this month', icon: BookOpen, tint: 'from-sky-200/30' },
+                  ].map(({ title, value, sub, icon: Icon, tint }, idx) => (
+                    <div key={idx} className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
+                      <div className={`absolute -right-8 -top-8 h-24 w-24 bg-gradient-to-br ${tint} to-transparent blur-2xl`} />
+                      <div className="relative z-10 flex items-start gap-4">
+                        <div className="h-12 w-12 rounded-xl bg-white ring-1 ring-slate-200 grid place-items-center">
+                          <Icon className="h-6 w-6 text-slate-800" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-[14px] text-slate-500">{title}</div>
+                          <div className="text-[24px] font-semibold text-slate-900">{value}</div>
+                          <div className="text-[12px] text-slate-500">{sub}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </aside>
             </div>
