@@ -49,17 +49,24 @@ export default function Hero() {
       />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-        {/* Top trust strip with logos */}
-        <div className="flex flex-col items-center justify-center gap-2 text-center">
+        {/* Top trust strip with logos - aligned left */}
+        <div className="flex items-start justify-start text-left">
           <motion.div
             initial={{ y: -8, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-3 rounded-full bg-white/80 backdrop-blur px-3 py-1 ring-1 ring-slate-200 shadow-sm"
+            className="inline-flex flex-wrap items-center gap-3 rounded-full bg-white/80 backdrop-blur px-3 py-1 ring-1 ring-slate-200 shadow-sm"
           >
-            <img src="/iitr-mark.svg" alt="IIT Bombay" className="h-5 w-auto opacity-90" />
-            <span className="text-xs sm:text-sm text-slate-700">Built by IIT Bombay & IIIT Hyderabad Alumni</span>
-            <img src="/iiith-mark.svg" alt="IIIT Hyderabad" className="h-5 w-auto opacity-90" />
+            <span className="text-xs sm:text-sm text-slate-700">Built by Alumni</span>
+            <span className="hidden sm:inline-block h-1 w-1 rounded-full bg-slate-300" aria-hidden />
+            <span className="inline-flex items-center gap-2">
+              <img src="/iitr-mark.svg" alt="IIT Bombay logo" className="h-5 w-auto opacity-90" />
+              <span className="text-xs sm:text-sm font-medium text-slate-700">IIT Bombay</span>
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <img src="/iiith-mark.svg" alt="IIIT Hyderabad logo" className="h-5 w-auto opacity-90" />
+              <span className="text-xs sm:text-sm font-medium text-slate-700">IIIT Hyderabad</span>
+            </span>
           </motion.div>
         </div>
 
