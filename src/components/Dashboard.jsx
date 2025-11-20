@@ -71,19 +71,16 @@ export default function Dashboard({ user, onLogout }) {
     } catch {}
   }, []);
 
-  // Persist prefs
+  // Initialize mode and exam from URL
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        "examsaathi:prefs",
-        JSON.stringify({ classLevel, preferredExams })
-      );
-    } catch {}
-  }, [classLevel, preferredExams]);
-
-  // Handle hash -> selected exam
-  useEffect(() => {
-    const hashExam = decodeURIComponent(window.location.hash.replace("#", ""));
+    const url = new URL(window.location.href);
+    // Mode from query param
+    const m = (url.searchParams.get("mode") || "").toLowerCase();
+    if (m === "pyq" || m === "mock") {
+      setMode(m);
+    }
+    // Exam from hash
+    const hashExam = decodeURIComponent(url.hash.replace("#", ""));
     if (hashExam && EXAMS.some((e) => e.id === hashExam)) {
       setSelectedExam(hashExam);
     } else {
@@ -96,9 +93,51 @@ export default function Dashboard({ user, onLogout }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Persist prefs
   useEffect(() => {
-    if (selectedExam) window.location.hash = selectedExam;
+    try {
+      localStorage.setItem(
+        "examsaathi:prefs",
+        JSON.stringify({ classLevel, preferredExams })
+      );
+    } catch {}
+  }, [classLevel, preferredExams]);
+
+  // Sync selected exam -> URL hash
+  useEffect(() => {
+    if (selectedExam) {
+      const url = new URL(window.location.href);
+      url.hash = `#${selectedExam}`;
+      window.history.replaceState(null, "", url);
+    }
   }, [selectedExam]);
+
+  // Sync mode -> URL query param
+  useEffect(() => {
+    if (!mode) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("mode", mode);
+    window.history.replaceState(null, "", url);
+  }, [mode]);
+
+  // Handle browser navigation (back/forward) and manual URL changes
+  useEffect(() => {
+    const onUrlChange = () => {
+      try {
+        const url = new URL(window.location.href);
+        const m = (url.searchParams.get("mode") || "").toLowerCase();
+        if (m === "pyq" || m === "mock") setMode(m);
+        const hashExam = decodeURIComponent(url.hash.replace("#", ""));
+        if (hashExam && EXAMS.some((e) => e.id === hashExam)) setSelectedExam(hashExam);
+      } catch {}
+    };
+    window.addEventListener("popstate", onUrlChange);
+    window.addEventListener("hashchange", onUrlChange);
+    return () => {
+      window.removeEventListener("popstate", onUrlChange);
+      window.removeEventListener("hashchange", onUrlChange);
+    };
+  }, []);
 
   const examLabel = useMemo(
     () => EXAMS.find((e) => e.id === selectedExam)?.label || "",
