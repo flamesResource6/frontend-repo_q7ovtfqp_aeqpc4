@@ -299,14 +299,14 @@ export default function Dashboard({ user, onLogout }) {
         <div className="relative">
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-300/50 to-transparent" />
         </div>
-        <div className="w-full h-14 flex items-center justify-between px-3 sm:px-4">
+        <div className="w-full h-12 flex items-center justify-between px-3 sm:px-4">
           <div className="flex items-center gap-3 w-full">
             <div className="relative h-8 w-8 rounded-md bg-white ring-1 ring-slate-200 grid place-items-center shadow-sm">
               <Layers className="h-4 w-4 text-sky-700" />
               <span className="pointer-events-none absolute -inset-1 rounded-md bg-sky-400/10 blur-md" />
             </div>
-            <div className="text-[16px] font-semibold text-slate-900">ExamSaathi</div>
-            <div className="ml-3">
+            <div className="text-[15px] font-semibold text-slate-900">ExamSaathi</div>
+            <div className="ml-2">
               <select
                 value={selectedExam || ""}
                 onChange={(e) => setSelectedExam(e.target.value)}
@@ -319,17 +319,17 @@ export default function Dashboard({ user, onLogout }) {
               </select>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2.5">
             <button className="h-8 w-8 rounded-md bg-white ring-1 ring-slate-200 text-slate-600 hover:bg-slate-50 grid place-items-center">
               <Bell className="h-4 w-4" />
             </button>
-            <div className="hidden sm:flex items-center gap-2 text-[13px] text-slate-600">
+            <div className="hidden sm:flex items-center gap-2 text-[12px] text-slate-600">
               <Info className="h-4 w-4 text-slate-500" />
               <span>Personalized for {CLASS_LEVELS.find((c) => c.id === classLevel)?.label}</span>
             </div>
             <button
               onClick={onLogout}
-              className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium text-white bg-gradient-to-r from-sky-600 to-emerald-600 hover:from-sky-700 hover:to-emerald-700 shadow-sm"
+              className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-[12px] font-medium text-white bg-gradient-to-r from-sky-600 to-emerald-600 hover:from-sky-700 hover:to-emerald-700 shadow-sm"
             >
               <LogOut className="h-4 w-4" /> Logout
             </button>
@@ -340,14 +340,14 @@ export default function Dashboard({ user, onLogout }) {
       {/* Hero and layout */}
       <div className="w-full">
         <div className="relative overflow-hidden">
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-64 w-[1100px] rounded-full bg-gradient-to-r from-sky-300/30 via-emerald-300/30 to-transparent blur-3xl" />
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-56 w-[1100px] rounded-full bg-gradient-to-r from-sky-300/30 via-emerald-300/30 to-transparent blur-3xl" />
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
             className="w-full px-3 sm:px-4"
           >
-            <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)_330px] gap-4 lg:gap-6 py-6 lg:py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)_320px] gap-3 lg:gap-5 py-5 lg:py-7">
               {/* Left rail */}
               <aside className="hidden lg:block">
                 <nav className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-2 shadow-sm overflow-hidden">
@@ -360,7 +360,7 @@ export default function Dashboard({ user, onLogout }) {
                         if (locked) return;
                         if (typeof action === "function") action();
                       }}
-                      className={`relative group w-full flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-[14px] transition hover:bg-sky-50/60 ${
+                      className={`relative group w-full flex items-center justify-between gap-2 rounded-xl px-3 py-1.5 text-[13px] transition hover:bg-sky-50/60 ${
                         locked ? "text-slate-400 cursor-not-allowed" : "text-slate-700"
                       }`}
                     >
@@ -370,11 +370,11 @@ export default function Dashboard({ user, onLogout }) {
                       </span>
                       {!locked && (
                         <span className="opacity-0 group-hover:opacity-100 transition text-sky-700">
-                          <ChevronRight className="h-5 w-5" />
+                          <ChevronRight className="h-4 w-4" />
                         </span>
                       )}
                       {locked ? (
-                        <span className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
                           <Lock className="h-3.5 w-3.5" />
                         </span>
                       ) : null}
@@ -383,31 +383,31 @@ export default function Dashboard({ user, onLogout }) {
                 </nav>
 
                 {/* Invite friends moved below navbar */}
-                <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden mt-4">
+                <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden mt-3">
                   <div className="absolute -left-8 -bottom-8 h-20 w-20 bg-emerald-300/10 rounded-full blur-xl" />
-                  <div className="flex items-center gap-2 text-[16px] font-semibold text-slate-900 relative z-10">
+                  <div className="flex items-center gap-2 text-[15px] font-semibold text-slate-900 relative z-10">
                     <Share2 className="h-5 w-5 text-sky-700" /> Invite friends
                   </div>
-                  <div className="mt-2 text-[14px] text-slate-600 relative z-10">Get 7 days Pro for every friend who joins.</div>
-                  <button onClick={copyInvite} className="relative z-10 mt-3 px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">{copied ? 'Copied!' : 'Copy link'}</button>
+                  <div className="mt-1.5 text-[13px] text-slate-600 relative z-10">Get 7 days Pro for every friend who joins.</div>
+                  <button onClick={copyInvite} className="relative z-10 mt-2.5 px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">{copied ? 'Copied!' : 'Copy link'}</button>
                 </div>
               </aside>
 
               {/* Center column */}
-              <main className="space-y-6 lg:space-y-8">
+              <main className="space-y-5 lg:space-y-6">
                 {/* Top selection card */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
-                  <div className="absolute -right-10 -top-10 h-36 w-36 bg-sky-300/10 rounded-full blur-2xl" />
-                  <div className="absolute -left-10 -bottom-10 h-36 w-36 bg-emerald-300/10 rounded-full blur-2xl" />
-                  <div className="relative z-10 grid grid-cols-1 gap-4">
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
+                  <div className="absolute -right-10 -top-10 h-32 w-32 bg-sky-300/10 rounded-full blur-2xl" />
+                  <div className="absolute -left-10 -bottom-10 h-32 w-32 bg-emerald-300/10 rounded-full blur-2xl" />
+                  <div className="relative z-10 grid grid-cols-1 gap-3">
                     <div>
-                      <div className="text-[18px] sm:text-[20px] font-semibold text-slate-900">Welcome back, {"Demo Student"}</div>
-                      <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-3">
-                        <label className="text-[14px] text-slate-600">Select exam</label>
+                      <div className="text-[17px] sm:text-[19px] font-semibold text-slate-900">Welcome back, {"Demo Student"}</div>
+                      <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center gap-3">
+                        <label className="text-[13px] text-slate-600">Select exam</label>
                         <select
                           value={selectedExam || ""}
                           onChange={(e) => setSelectedExam(e.target.value)}
-                          className="text-[14px] rounded-md ring-1 ring-slate-200 bg-white px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 w-full sm:w-64"
+                          className="text-[13px] rounded-md ring-1 ring-slate-200 bg-white px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 w-full sm:w-64"
                         >
                           {!selectedExam ? <option value="" disabled>Select exam</option> : null}
                           {EXAMS.map((ex) => (
@@ -420,19 +420,19 @@ export default function Dashboard({ user, onLogout }) {
                 </motion.div>
 
                 {/* Practice section */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(400px_120px_at_20%_-10%, black, transparent)" }}>
-                    <div className="absolute left-0 top-0 h-40 w-64 bg-gradient-to-br from-sky-200/40 to-emerald-200/30 blur-2xl" />
+                    <div className="absolute left-0 top-0 h-36 w-60 bg-gradient-to-br from-sky-200/40 to-emerald-200/30 blur-2xl" />
                   </div>
                   <div className="flex items-center justify-between relative z-10">
-                    <h2 className="text-[18px] font-semibold text-slate-900">Start Solving PYQs</h2>
+                    <h2 className="text-[17px] font-semibold text-slate-900">Start Solving PYQs</h2>
                   </div>
 
                   {/* Subject selection chips */}
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-3.5 flex flex-wrap gap-2">
                     <button
                       onClick={() => selectAllPCM(!allSelected)}
-                      className={`px-3 py-2 rounded-md text-[13px] ring-1 transition ${allSelected ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}
+                      className={`px-3 py-2 rounded-md text-[12px] ring-1 transition ${allSelected ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}
                     >
                       All PCM
                     </button>
@@ -444,7 +444,7 @@ export default function Dashboard({ user, onLogout }) {
                       <button
                         key={opt.id}
                         onClick={() => toggleSubject(opt.id)}
-                        className={`px-3 py-2 rounded-md text-[13px] ring-1 transition ${practiceSubjects[opt.id] ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}
+                        className={`px-3 py-2 rounded-md text-[12px] ring-1 transition ${practiceSubjects[opt.id] ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}
                       >
                         {opt.label}
                       </button>
@@ -452,8 +452,8 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
 
                   {/* CTA */}
-                  <div className="mt-5 flex">
-                    <button onClick={startPracticeFromSection} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[14px] font-semibold shadow-sm">
+                  <div className="mt-4 flex">
+                    <button onClick={startPracticeFromSection} className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[13px] font-semibold shadow-sm">
                       Start Practising
                       <ChevronRight className="h-4 w-4" />
                     </button>
@@ -461,40 +461,40 @@ export default function Dashboard({ user, onLogout }) {
                 </motion.div>
 
                 {/* Action cards row */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-3.5">
                   {/* Full-Length Mock Tests */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
-                    <div className="absolute -right-8 -top-8 h-24 w-24 bg-sky-300/10 rounded-full blur-xl" />
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
+                    <div className="absolute -right-8 -top-8 h-20 w-20 bg-sky-300/10 rounded-full blur-xl" />
                     <div className="flex items-start gap-4 relative z-10">
-                      <div className="h-12 w-12 rounded-xl bg-sky-50 ring-1 ring-slate-200 grid place-items-center">
-                        <FileText className="h-6 w-6 text-sky-700" />
+                      <div className="h-11 w-11 rounded-xl bg-sky-50 ring-1 ring-slate-200 grid place-items-center">
+                        <FileText className="h-5 w-5 text-sky-700" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-[18px] font-semibold text-slate-900">Full-Length Mock Tests</div>
-                        <div className="mt-1 text-[14px] text-slate-600">Auto-graded, exam-pattern based tests</div>
-                        <button onClick={() => openFlow('mock')} className="mt-4 px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
+                        <div className="text-[17px] font-semibold text-slate-900">Full-Length Mock Tests</div>
+                        <div className="mt-0.5 text-[13px] text-slate-600">Auto-graded, exam-pattern based tests</div>
+                        <button onClick={() => openFlow('mock')} className="mt-3 px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
                       </div>
                     </div>
                   </div>
 
                   {/* Past Year Papers - updated */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
-                    <div className="absolute -left-8 -bottom-8 h-24 w-24 bg-emerald-300/10 rounded-full blur-xl" />
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
+                    <div className="absolute -left-8 -bottom-8 h-20 w-20 bg-emerald-300/10 rounded-full blur-xl" />
                     <div className="flex items-start gap-4 relative z-10">
-                      <div className="h-12 w-12 rounded-xl bg-emerald-50 ring-1 ring-slate-200 grid place-items-center">
-                        <Trophy className="h-6 w-6 text-emerald-700" />
+                      <div className="h-11 w-11 rounded-xl bg-emerald-50 ring-1 ring-slate-200 grid place-items-center">
+                        <Trophy className="h-5 w-5 text-emerald-700" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-[18px] font-semibold text-slate-900">Appear for Real Prev. Year Papers</div>
-                        <div className="mt-1 text-[14px] text-slate-600">Pick a specific year to simulate your score.</div>
+                        <div className="text-[17px] font-semibold text-slate-900">Appear for Real Prev. Year Papers</div>
+                        <div className="mt-0.5 text-[13px] text-slate-600">Pick a specific year to simulate your score.</div>
 
                         {/* Year dropdown */}
-                        <div className="mt-3 flex items-center gap-3">
-                          <label className="text-[13px] text-slate-600">Year</label>
+                        <div className="mt-2.5 flex items-center gap-3">
+                          <label className="text-[12px] text-slate-600">Year</label>
                           <select
                             value={selectedYear ?? ''}
                             onChange={(e) => setSelectedYear(Number(e.target.value))}
-                            className="text-[13px] rounded-md ring-1 ring-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 w-40"
+                            className="text-[12px] rounded-md ring-1 ring-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 w-36"
                           >
                             <option value="" disabled>Select</option>
                             {yearsList.map((y) => (
@@ -504,8 +504,8 @@ export default function Dashboard({ user, onLogout }) {
                         </div>
 
                         {/* CTA only (range buttons removed) */}
-                        <div className="mt-4 flex items-center gap-2">
-                          <button onClick={openPyqScore} className="px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Simulate Score</button>
+                        <div className="mt-3 flex items-center gap-2">
+                          <button onClick={openPyqScore} className="px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Simulate Score</button>
                         </div>
                       </div>
                     </div>
@@ -513,67 +513,67 @@ export default function Dashboard({ user, onLogout }) {
                 </motion.div>
 
                 {/* Second row for two more cards */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-3.5">
                   {/* Chapter-wise Practice */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
-                    <div className="absolute -left-8 -bottom-8 h-24 w-24 bg-emerald-300/10 rounded-full blur-xl" />
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
+                    <div className="absolute -left-8 -bottom-8 h-20 w-20 bg-emerald-300/10 rounded-full blur-xl" />
                     <div className="flex items-start gap-4 relative z-10">
-                      <div className="h-12 w-12 rounded-xl bg-emerald-50 ring-1 ring-slate-200 grid place-items-center">
-                        <PlayCircle className="h-6 w-6 text-emerald-700" />
+                      <div className="h-11 w-11 rounded-xl bg-emerald-50 ring-1 ring-slate-200 grid place-items-center">
+                        <PlayCircle className="h-5 w-5 text-emerald-700" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-[18px] font-semibold text-slate-900">Chapter-wise Practice</div>
-                        <div className="mt-1 text-[14px] text-slate-600">Create focused tests by chapter</div>
-                        <button onClick={() => openFlow('mock')} className="mt-4 px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
+                        <div className="text-[17px] font-semibold text-slate-900">Chapter-wise Practice</div>
+                        <div className="mt-0.5 text-[13px] text-slate-600">Create focused tests by chapter</div>
+                        <button onClick={() => openFlow('mock')} className="mt-3 px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Start Test</button>
                       </div>
                     </div>
                   </div>
 
                   {/* Personalised Revision Roadmap */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
-                    <div className="absolute -right-8 -top-8 h-24 w-24 bg-sky-300/10 rounded-full blur-xl" />
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
+                    <div className="absolute -right-8 -top-8 h-20 w-20 bg-sky-300/10 rounded-full blur-xl" />
                     <div className="flex items-start gap-4 relative z-10">
-                      <div className="h-12 w-12 rounded-xl bg-sky-50 ring-1 ring-slate-200 grid place-items-center">
-                        <Target className="h-6 w-6 text-sky-700" />
+                      <div className="h-11 w-11 rounded-xl bg-sky-50 ring-1 ring-slate-200 grid place-items-center">
+                        <Target className="h-5 w-5 text-sky-700" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-[18px] font-semibold text-slate-900">Personalised Revision Roadmap</div>
-                        <div className="mt-1 text-[14px] text-slate-600">A step-by-step plan tailored to your weak areas.</div>
-                        <button onClick={openRoadmap} className="mt-4 px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Build Roadmap</button>
+                        <div className="text-[17px] font-semibold text-slate-900">Personalised Revision Roadmap</div>
+                        <div className="mt-0.5 text-[13px] text-slate-600">A step-by-step plan tailored to your weak areas.</div>
+                        <button onClick={openRoadmap} className="mt-3 px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Build Roadmap</button>
                       </div>
                     </div>
                   </div>
                 </motion.div>
 
                 {/* Mentor carousel */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(380px_120px_at_90%_120%, black, transparent)" }}>
-                    <div className="absolute right-0 bottom-0 h-40 w-64 bg-gradient-to-br from-emerald-200/30 to-sky-200/30 blur-2xl" />
+                    <div className="absolute right-0 bottom-0 h-36 w-60 bg-gradient-to-br from-emerald-200/30 to-sky-200/30 blur-2xl" />
                   </div>
                   <div className="flex items-center justify-between relative z-10">
-                    <h3 className="text-[18px] font-semibold text-slate-900">Talk to a mentor 1-on-1</h3>
-                    <button onClick={() => window.open('https://airtable.com','_blank')} className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[13px] font-semibold hover:from-sky-700 hover:to-emerald-700 shadow-sm">
+                    <h3 className="text-[17px] font-semibold text-slate-900">Talk to a mentor 1-on-1</h3>
+                    <button onClick={() => window.open('https://airtable.com','_blank')} className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[12px] font-semibold hover:from-sky-700 hover:to-emerald-700 shadow-sm">
                       Book a Mentor Session <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="mt-4 -mx-2 overflow-x-auto">
+                  <div className="mt-3.5 -mx-2 overflow-x-auto">
                     <div className="px-2 flex gap-3 min-w-max">
                       {[1,2,3,4,5].map((idx) => (
-                        <div key={idx} className="w-[240px] shrink-0 relative rounded-2xl ring-1 ring-slate-200 bg-white shadow-sm p-5 overflow-hidden">
+                        <div key={idx} className="w-[240px] shrink-0 relative rounded-2xl ring-1 ring-slate-200 bg-white shadow-sm p-4 overflow-hidden">
                           <div className="pointer-events-none absolute -inset-8 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent blur-2xl" />
                           <div className="relative z-10 flex items-center gap-4">
                             <img src={`https://i.pravatar.cc/120?img=${5+idx}`} alt="mentor" className="h-14 w-14 rounded-full object-cover" loading="lazy" />
                             <div>
-                              <div className="text-[15px] font-semibold text-slate-900">Ananya Sharma</div>
+                              <div className="text-[14px] font-semibold text-slate-900">Ananya Sharma</div>
                               <div className="text-[12px] text-slate-500">AIR 142 · IIT Bombay</div>
                             </div>
                           </div>
-                          <button onClick={() => window.open('https://airtable.com','_blank')} className="relative z-10 mt-4 w-full px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Book Session</button>
+                          <button onClick={() => window.open('https://airtable.com','_blank')} className="relative z-10 mt-3 w-full px-3.5 py-2 rounded-md text-[12px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Book Session</button>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <button onClick={() => window.open('https://airtable.com','_blank')} className="mt-4 sm:hidden inline-flex items-center justify-center w-full gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[14px] font-semibold shadow-sm">
+                  <button onClick={() => window.open('https://airtable.com','_blank')} className="mt-3.5 sm:hidden inline-flex items-center justify-center w-full gap-2 px-3.5 py-2 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[13px] font-semibold shadow-sm">
                     Book a Mentor Session <ChevronRight className="h-4 w-4" />
                   </button>
                 </motion.div>
@@ -581,8 +581,37 @@ export default function Dashboard({ user, onLogout }) {
 
               {/* Right rail */}
               <aside className="hidden lg:block">
-                <div className="space-y-4">
-                  {/* Promo Block moved to right side */}
+                <div className="space-y-3.5">
+                  {/* Stats group heading and KPI cards */}
+                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden">
+                    <div className="absolute -top-6 right-6 h-16 w-16 bg-gradient-to-br from-sky-200/30 to-emerald-200/20 rounded-full blur-2xl" />
+                    <div className="relative z-10">
+                      <div className="text-[12px] font-semibold tracking-wide uppercase text-slate-700">Your stats</div>
+                      <div className="mt-2 grid grid-cols-1 gap-2.5">
+                        {[
+                          { title: 'Accuracy', value: '82%', sub: '+4% this week', icon: Target, tint: 'from-sky-200/30' },
+                          { title: 'Avg Score', value: '178', sub: 'out of 300', icon: Award, tint: 'from-emerald-200/30' },
+                          { title: 'Questions', value: '462', sub: 'this month', icon: BookOpen, tint: 'from-sky-200/30' },
+                        ].map(({ title, value, sub, icon: Icon, tint }, idx) => (
+                          <div key={idx} className="relative rounded-xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden">
+                            <div className={`absolute -right-8 -top-8 h-20 w-20 bg-gradient-to-br ${tint} to-transparent blur-2xl`} />
+                            <div className="relative z-10 flex items-start gap-3.5">
+                              <div className="h-10 w-10 rounded-lg bg-white ring-1 ring-slate-200 grid place-items-center">
+                                <Icon className="h-5 w-5 text-slate-800" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-[12px] text-slate-500">{title}</div>
+                                <div className="text-[20px] font-semibold text-slate-900">{value}</div>
+                                <div className="text-[11px] text-slate-500">{sub}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Promo Block moved below stats */}
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden">
                     <div className="pointer-events-none absolute -inset-6 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent blur-2xl" />
                     <div className="relative z-10">
@@ -641,27 +670,6 @@ export default function Dashboard({ user, onLogout }) {
                       </div>
                     </div>
                   </div>
-
-                  {/* KPI cards moved to right rail */}
-                  {[
-                    { title: 'Accuracy', value: '82%', sub: '+4% this week', icon: Target, tint: 'from-sky-200/30' },
-                    { title: 'Avg Score', value: '178', sub: 'out of 300', icon: Award, tint: 'from-emerald-200/30' },
-                    { title: 'Questions', value: '462', sub: 'this month', icon: BookOpen, tint: 'from-sky-200/30' },
-                  ].map(({ title, value, sub, icon: Icon, tint }, idx) => (
-                    <div key={idx} className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
-                      <div className={`absolute -right-8 -top-8 h-24 w-24 bg-gradient-to-br ${tint} to-transparent blur-2xl`} />
-                      <div className="relative z-10 flex items-start gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-white ring-1 ring-slate-200 grid place-items-center">
-                          <Icon className="h-6 w-6 text-slate-800" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-[14px] text-slate-500">{title}</div>
-                          <div className="text-[24px] font-semibold text-slate-900">{value}</div>
-                          <div className="text-[12px] text-slate-500">{sub}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </aside>
             </div>
