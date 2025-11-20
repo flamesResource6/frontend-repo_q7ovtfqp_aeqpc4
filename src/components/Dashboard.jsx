@@ -17,13 +17,12 @@ import {
   Bell,
   Trophy,
   Share2,
-  Smartphone,
   User,
   Lock,
   X,
-  Flame,
   Target,
   Award,
+  Star,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -69,6 +68,9 @@ export default function Dashboard({ user, onLogout }) {
   const [roadmapModalOpen, setRoadmapModalOpen] = useState(false);
   const [roadmapWeeks, setRoadmapWeeks] = useState(4);
   const [roadmapFocus, setRoadmapFocus] = useState({ math: true, physics: true, chemistry: true });
+
+  // New: subject selection for quick "Start Solving PYQs" section
+  const [practiceSubjects, setPracticeSubjects] = useState({ physics: false, chemistry: false, math: false });
 
   // Load prefs
   useEffect(() => {
@@ -180,21 +182,19 @@ export default function Dashboard({ user, onLogout }) {
     setFlowModalOpen(true);
   }
 
-  // Open PYQ score with either a specific year (from dropdown) or range shortcut
-  function openPyqScore(presetYears = null) {
+  // Open PYQ scope for a specific selected year only (range shortcuts removed)
+  function openPyqScore() {
     if (!selectedExam) {
       setShowExamPicker(true);
       return;
     }
+    if (!selectedYear) {
+      // require year selection before proceeding
+      return;
+    }
     setMode('pyq');
     setFlowType('pyq');
-    if (presetYears) {
-      setYears(presetYears);
-      setSelectedYear(null);
-    } else {
-      // Use specific year if chosen from dropdown
-      setYears(null);
-    }
+    setYears(null);
     setScope(null);
     setFlowStep(2); // jump to scope selection
     setFlowModalOpen(true);
@@ -202,13 +202,12 @@ export default function Dashboard({ user, onLogout }) {
 
   function goToSelection(selScope) {
     if (!selectedExam || !flowType) return;
-    // Require either years (range) or selectedYear (specific)
-    if (flowType === 'pyq' && !years && !selectedYear) return;
 
     const params = new URLSearchParams({ exam: selectedExam, scope: selScope });
     if (flowType === 'pyq') {
-      if (selectedYear) params.set('year', String(selectedYear));
-      if (years) params.set('years', String(years));
+      // require a specific year
+      if (!selectedYear) return;
+      params.set('year', String(selectedYear));
       navigate(`/practice?${params.toString()}`);
     } else {
       // mock flow
@@ -255,12 +254,25 @@ export default function Dashboard({ user, onLogout }) {
     navigate(`/roadmap?${qs.toString()}`);
   }
 
-  const subjectTiles = [
-    { id: "all", label: "All Subjects (PCM)", icon: BookOpen },
-    { id: "phy", label: "Physics", icon: LineChart },
-    { id: "chem", label: "Chemistry", icon: Library },
-    { id: "math", label: "Maths", icon: FileText },
-  ];
+  // Practice section helpers
+  const allSelected = practiceSubjects.physics && practiceSubjects.chemistry && practiceSubjects.math;
+  function toggleSubject(key) {
+    setPracticeSubjects((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+  function selectAllPCM(val) {
+    setPracticeSubjects({ physics: val, chemistry: val, math: val });
+  }
+  function startPracticeFromSection() {
+    if (!selectedExam) {
+      setShowExamPicker(true);
+      return;
+    }
+    const selected = Object.entries(practiceSubjects).filter(([, v]) => v).map(([k]) => k);
+    const scopeParam = selected.length === 3 ? 'full' : selected.join(',');
+    if (selected.length === 0) return; // require at least one
+    const params = new URLSearchParams({ exam: selectedExam, scope: scopeParam });
+    navigate(`/practice?${params.toString()}`);
+  }
 
   const fadeUp = {
     hidden: { y: 10, opacity: 0 },
@@ -338,6 +350,65 @@ export default function Dashboard({ user, onLogout }) {
             <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)_330px] gap-4 lg:gap-6 py-6 lg:py-8">
               {/* Left rail */}
               <aside className="hidden lg:block">
+                {/* Promo Block: AlgoUniversity School of CS & AI */}
+                <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-4 shadow-sm overflow-hidden mb-4">
+                  <div className="pointer-events-none absolute -inset-6 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent blur-2xl" />
+                  <div className="relative z-10">
+                    <div className="text-[12px] font-semibold tracking-wide uppercase text-sky-700">Introducing AlgoUniversity School of CS & AI</div>
+                    <div className="mt-2 text-[16px] font-bold text-slate-900 leading-snug">
+                      Introducing AlgoUniversity School of CS & AI
+                    </div>
+                    <div className="mt-1 text-[13px] text-slate-700">
+                      A next-gen B.Tech experience built by engineers from IIT Bombay & IIIT Hyderabad
+                    </div>
+                    <div className="my-3 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                    <div className="text-[13px] text-slate-700">
+                      Shaping future-ready software engineers with hands-on learning, paid internships, and industry mentorship.
+                    </div>
+                    <div className="mt-3 grid grid-cols-1 gap-2">
+                      {/* Card 1 */}
+                      <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
+                        <div className="flex items-start gap-2">
+                          <Star className="h-4 w-4 text-amber-500 shrink-0" />
+                          <div>
+                            <div className="text-[13px] font-semibold text-slate-900">Learn from Top Engineers</div>
+                            <div className="text-[12px] text-slate-600">Classes taught by mentors from Google, Microsoft, and top tech firms.</div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Card 2 */}
+                      <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
+                        <div className="flex items-start gap-2">
+                          <Star className="h-4 w-4 text-amber-500 shrink-0" />
+                          <div>
+                            <div className="text-[13px] font-semibold text-slate-900">Real Experience Before Graduation</div>
+                            <div className="text-[12px] text-slate-600">Students complete internships & live projects during B.Tech.</div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Card 3 */}
+                      <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
+                        <div className="flex items-start gap-2">
+                          <Star className="h-4 w-4 text-amber-500 shrink-0" />
+                          <div>
+                            <div className="text-[13px] font-semibold text-slate-900">Assured Paid Internships</div>
+                            <div className="text-[12px] text-slate-600">From 2nd year onwards, students earn while they learn.</div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Card 4 */}
+                      <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
+                        <div className="flex items-start gap-2">
+                          <Star className="h-4 w-4 text-amber-500 shrink-0" />
+                          <div>
+                            <div className="text-[13px] font-semibold text-slate-900">Placement-Focused Program</div>
+                            <div className="text-[12px] text-slate-600">Access to AlgoUniversity’s 5000+ hiring partners & 25 LPA avg. outcomes.</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <nav className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-2 shadow-sm overflow-hidden">
                   <div className="pointer-events-none absolute -inset-6 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent blur-2xl" />
                   {sidebarItems.map(({ id, label, icon: Icon, locked, action }) => (
@@ -427,31 +498,38 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                   <div className="flex items-center justify-between relative z-10">
                     <h2 className="text-[18px] font-semibold text-slate-900">Start Solving PYQs</h2>
-                    <button onClick={() => openFlow('pyq')} className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[13px] font-semibold hover:from-sky-700 hover:to-emerald-700 shadow-sm">
-                      Start Practicing <ChevronRight className="h-4 w-4" />
-                    </button>
                   </div>
 
-                  {/* Subject tiles */}
-                  <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {subjectTiles.map(({ id, label, icon: Icon }) => (
-                      <div key={id} className="group relative rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm p-5 hover:shadow transition cursor-pointer overflow-hidden">
-                        <div className="pointer-events-none absolute -inset-6 bg-gradient-to-br from-sky-200/20 via-emerald-200/20 to-transparent opacity-0 group-hover:opacity-100 blur-2xl transition" />
-                        <div className="relative z-10 flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-sky-50 ring-1 ring-slate-200 grid place-items-center">
-                            <Icon className="h-6 w-6 text-sky-700" />
-                          </div>
-                          <div className="text-[15px] font-medium text-slate-900">{label}</div>
-                        </div>
-                      </div>
+                  {/* Subject selection chips */}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => selectAllPCM(!allSelected)}
+                      className={`px-3 py-2 rounded-md text-[13px] ring-1 transition ${allSelected ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}
+                    >
+                      All PCM
+                    </button>
+                    {[
+                      { id: 'physics', label: 'Physics' },
+                      { id: 'chemistry', label: 'Chemistry' },
+                      { id: 'math', label: 'Maths' },
+                    ].map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => toggleSubject(opt.id)}
+                        className={`px-3 py-2 rounded-md text-[13px] ring-1 transition ${practiceSubjects[opt.id] ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}
+                      >
+                        {opt.label}
+                      </button>
                     ))}
                   </div>
 
-                  {/* Mobile CTA */}
-                  <button onClick={() => openFlow('pyq')} className="mt-5 sm:hidden inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[14px] font-semibold shadow-sm">
-                    Start Practicing
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+                  {/* CTA */}
+                  <div className="mt-5 flex">
+                    <button onClick={startPracticeFromSection} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-[14px] font-semibold shadow-sm">
+                      Start Practising
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </motion.div>
 
                 {/* Action cards row */}
@@ -471,7 +549,7 @@ export default function Dashboard({ user, onLogout }) {
                     </div>
                   </div>
 
-                  {/* Past Year Score Simulator - UPDATED */}
+                  {/* Past Year Papers - updated */}
                   <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-6 sm:p-7 shadow-sm overflow-hidden">
                     <div className="absolute -left-8 -bottom-8 h-24 w-24 bg-emerald-300/10 rounded-full blur-xl" />
                     <div className="flex items-start gap-4 relative z-10">
@@ -480,7 +558,7 @@ export default function Dashboard({ user, onLogout }) {
                       </div>
                       <div className="flex-1">
                         <div className="text-[18px] font-semibold text-slate-900">Appear for Real Prev. Year Papers</div>
-                        <div className="mt-1 text-[14px] text-slate-600">Pick a specific year or try a range to estimate your score.</div>
+                        <div className="mt-1 text-[14px] text-slate-600">Pick a specific year to simulate your score.</div>
 
                         {/* Year dropdown */}
                         <div className="mt-3 flex items-center gap-3">
@@ -497,14 +575,9 @@ export default function Dashboard({ user, onLogout }) {
                           </select>
                         </div>
 
-                        {/* Range shortcuts and CTA */}
-                        <div className="mt-4 flex flex-wrap items-center gap-2">
-                          {[1,3,5,10].map((y) => (
-                            <button key={y} onClick={() => openPyqScore(y)} className="px-3 py-2 rounded-md text-[13px] font-medium ring-1 ring-slate-200 hover:bg-sky-50">
-                              {y} yr{y>1?'s':''}
-                            </button>
-                          ))}
-                          <button onClick={() => openPyqScore(null)} className="ml-auto px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Simulate Score</button>
+                        {/* CTA only (range buttons removed) */}
+                        <div className="mt-4 flex items-center gap-2">
+                          <button onClick={openPyqScore} className="px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Simulate Score</button>
                         </div>
                       </div>
                     </div>
@@ -682,7 +755,7 @@ export default function Dashboard({ user, onLogout }) {
         )}
       </AnimatePresence>
 
-      {/* Flow Modal: years/scope or single year scope */}
+      {/* Flow Modal: scope for selected year (ranges removed for PYQ) */}
       <AnimatePresence>
         {flowModalOpen && (
           <motion.div
@@ -705,8 +778,8 @@ export default function Dashboard({ user, onLogout }) {
                 </button>
               </div>
 
-              {/* Step 1: only for ranges in mock, or if no single year picked */}
-              {flowType === 'pyq' && !selectedYear && flowStep === 1 && (
+              {/* Step 1 (ranges) only for mock now */}
+              {flowType === 'mock' && flowStep === 1 && (
                 <div className="p-4">
                   <div className="text-[14px] text-slate-700 font-medium">Select year range</div>
                   <div className="mt-3 grid grid-cols-4 gap-2">
@@ -731,11 +804,11 @@ export default function Dashboard({ user, onLogout }) {
                     ))}
                   </div>
                   <div className="mt-4 flex items-center justify-between text-[13px] text-slate-600">
-                    {flowType === 'pyq' && !selectedYear ? (
+                    {flowType === 'mock' && flowStep === 2 ? (
                       <button onClick={() => setFlowStep(1)} className="underline decoration-slate-300 hover:text-slate-900">Back</button>
                     ) : <span />}
                     <div className="text-slate-500">
-                      {selectedYear ? `Year ${selectedYear}` : years ? `${years} ${years>1?'years':'year'} selected` : ''}
+                      {flowType === 'pyq' && selectedYear ? `Year ${selectedYear}` : flowType === 'mock' && years ? `${years} ${years>1?'years':'year'} selected` : ''}
                     </div>
                   </div>
                 </div>
