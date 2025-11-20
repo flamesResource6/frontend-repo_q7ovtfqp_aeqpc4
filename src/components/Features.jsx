@@ -135,13 +135,13 @@ export default function Features() {
             <motion.div
               key={it.title}
               variants={fadeUp}
-              whileHover={{ y: -6 }}
-              className="group relative rounded-2xl bg-white/90 backdrop-blur ring-1 ring-slate-200 p-5 shadow-sm transition-all duration-300 hover:shadow-xl"
+              whileHover={{ y: -3 }}
+              className="group relative rounded-2xl bg-white ring-1 ring-slate-100 p-5 shadow-sm transition-all duration-300 hover:shadow-md"
             >
-              {/* Elegant gradient hairline border on hover */}
+              {/* Minimal gradient hairline border on hover */}
               <div
-                className={`pointer-events-none absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br ${it.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                style={{ maskImage: "linear-gradient(white 0, white calc(100% - 1.5px), transparent calc(100% - 1.5px))" }}
+                className={`pointer-events-none absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br ${it.gradient} opacity-0 group-hover:opacity-60 transition-opacity duration-300`}
+                style={{ maskImage: "linear-gradient(white 0, white calc(100% - 1px), transparent calc(100% - 1px))" }}
               />
 
               {/* Icon */}
