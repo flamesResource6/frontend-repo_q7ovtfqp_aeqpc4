@@ -176,16 +176,6 @@ export default function Features() {
                   className={`h-1 rounded-full bg-gradient-to-r ${it.gradient} opacity-70`}
                 />
               </div>
-
-              {/* Sheen on hover for premium feel */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{
-                  background:
-                    "linear-gradient(120deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.7) 35%, rgba(255,255,255,0) 55%)"
-                }}
-              />
             </motion.div>
           ))}
         </motion.div>
