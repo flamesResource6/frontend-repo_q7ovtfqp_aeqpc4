@@ -163,6 +163,13 @@ export default function Dashboard({ user, onLogout }) {
     window.open("https://airtable.com", "_blank");
   }
 
+  function openASCA() {
+    window.open("https://asca.examsaathi.com", "_blank");
+  }
+  function openSEAT() {
+    window.open("https://seat.examsaathi.com", "_blank");
+  }
+
   return (
     <section className="min-h-screen bg-gradient-to-b from-white via-sky-50/40 to-white">
       {/* Top bar */}
@@ -285,7 +292,7 @@ export default function Dashboard({ user, onLogout }) {
             </div>
           </div>
 
-          {/* PYQs Module - Hero */}
+          {/* 1. PYQs Module - Hero */}
           <div className="rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-white ring-1 ring-emerald-100 p-5 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-start gap-3">
@@ -308,7 +315,7 @@ export default function Dashboard({ user, onLogout }) {
             </div>
           </div>
 
-          {/* Mock Test Module - Two Cards */}
+          {/* 2. Mock Test Module - Two Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
             <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
               <div className="flex items-start gap-3">
@@ -336,7 +343,7 @@ export default function Dashboard({ user, onLogout }) {
             </div>
           </div>
 
-          {/* Mentor Connect Module */}
+          {/* 3. Mentor Connect Module */}
           <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-5 mb-5">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
@@ -381,6 +388,42 @@ export default function Dashboard({ user, onLogout }) {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 4. ASCA Featured Section (Middle) */}
+          <div className="rounded-3xl bg-gradient-to-br from-indigo-50 via-white to-sky-50 ring-1 ring-slate-200 p-6 mb-6 overflow-hidden">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+              <div className="max-w-2xl">
+                <div className="text-[22px] sm:text-[24px] font-extrabold tracking-tight text-slate-900">
+                  <span className="mr-2">👉</span> Know Your Future in CS & AI
+                </div>
+                <p className="mt-2 text-[13px] sm:text-[14px] leading-relaxed text-slate-600">
+                  A quick assessment designed to help you discover your potential in computer science and future career pathways.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button
+                    onClick={openASCA}
+                    className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm shadow-indigo-200"
+                  >
+                    Explore ASCA
+                  </button>
+                  <button
+                    onClick={openSEAT}
+                    className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-sky-600 text-white hover:bg-sky-700 shadow-sm shadow-sky-200"
+                  >
+                    Apply for SEAT Exam
+                  </button>
+                </div>
+              </div>
+              <div className="hidden lg:block">
+                <div className="relative h-28 w-72 rounded-2xl bg-white ring-1 ring-slate-200 grid place-items-center">
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-indigo-100/60 to-sky-100/60" />
+                  <div className="relative text-slate-700 text-[12px]">
+                    Assessment · Skill Mapping · Roadmap
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -547,6 +590,69 @@ export default function Dashboard({ user, onLogout }) {
         {/* Right Panel */}
         <aside className="hidden lg:block">
           <div className="space-y-3">
+            {/* 1️⃣ Upcoming Mock Test Reminder */}
+            <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
+              <div className="flex items-start gap-3">
+                <div className="h-9 w-9 rounded-xl bg-sky-100 ring-1 ring-sky-200 grid place-items-center">
+                  <Calendar className="h-5 w-5 text-sky-700" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-[12px] text-slate-600">Upcoming Mock Test</div>
+                  <div className="text-[14px] font-semibold text-slate-900">JEE Main Mock 03</div>
+                  <div className="mt-1 text-[12px] text-slate-600">Starts today · 7:00 PM</div>
+                  <button onClick={() => goToBuilder("mock")} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-sky-600 text-white hover:bg-sky-700">Start Now</button>
+                </div>
+              </div>
+            </div>
+
+            {/* 2️⃣ Performance Snapshot */}
+            <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
+              <div className="flex items-center justify-between">
+                <div className="text-[13px] font-semibold text-slate-900">Performance snapshot</div>
+                <LineChart className="h-4 w-4 text-emerald-600" />
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <div>
+                  <div className="text-[11px] text-slate-500">Chapters completed</div>
+                  <div className="text-[18px] font-bold text-slate-900">28</div>
+                  <div className="mt-1 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: "70%" }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-500">Tests attempted</div>
+                  <div className="text-[18px] font-bold text-slate-900">14</div>
+                  <div className="mt-1 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-sky-500 rounded-full" style={{ width: "45%" }} />
+                  </div>
+                </div>
+              </div>
+              {/* tiny sparkline */}
+              <div className="mt-3 h-12 w-full rounded-xl ring-1 ring-slate-200 bg-slate-50/60 p-2">
+                <svg viewBox="0 0 100 24" className="h-full w-full">
+                  <polyline
+                    fill="none"
+                    stroke="#22c55e"
+                    strokeWidth="2"
+                    points="0,18 10,16 20,15 30,12 40,14 50,10 60,11 70,9 80,8 90,6 100,5"
+                  />
+                  <polyline
+                    fill="none"
+                    stroke="#0ea5e9"
+                    strokeWidth="2"
+                    points="0,20 10,19 20,18 30,17 40,16 50,14 60,13 70,12 80,11 90,10 100,9"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* 3️⃣ ASCA Promo Micro-Card */}
+            <div className="rounded-2xl bg-gradient-to-br from-indigo-50 to-white ring-1 ring-indigo-100 p-4">
+              <div className="text-[13px] font-semibold text-slate-900">ASCA · CS & AI Potential</div>
+              <div className="mt-1 text-[12px] text-slate-600">Curious about CS & AI? Know where you stand.</div>
+              <button onClick={openSEAT} className="mt-3 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-indigo-600 text-white hover:bg-indigo-700">Take SEAT Exam</button>
+            </div>
+
             {/* Continue card */}
             <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
               <div className="flex items-start gap-3">
@@ -575,23 +681,6 @@ export default function Dashboard({ user, onLogout }) {
                 <div className="h-full bg-emerald-500 rounded-full" style={{ width: "60%" }} />
               </div>
               <div className="mt-2 text-[11px] text-slate-500">24/40 done – keep going!</div>
-            </div>
-
-            {/* Upcoming */}
-            <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900">
-                <Calendar className="h-4 w-4 text-sky-600" /> Upcoming
-              </div>
-              <div className="mt-2 space-y-2">
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-slate-600">JEE Main Mock 03</span>
-                  <span className="px-2 py-0.5 rounded bg-sky-50 text-sky-700 ring-1 ring-sky-200">Sat, 7 PM</span>
-                </div>
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-slate-600">BITSAT Full Test</span>
-                  <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 ring-1 ring-amber-200">Sun, 10 AM</span>
-                </div>
-              </div>
             </div>
 
             {/* CTA */}
