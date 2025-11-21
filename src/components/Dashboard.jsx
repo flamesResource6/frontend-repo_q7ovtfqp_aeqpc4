@@ -89,13 +89,6 @@ export default function Dashboard({ user, onLogout }) {
   // New: subject selection for quick "Start Solving PYQs" section
   const [practiceSubjects, setPracticeSubjects] = useState({ physics: false, chemistry: false, math: false });
 
-  // New: Today's plan checklist state
-  const [todayTasks, setTodayTasks] = useState({
-    physics: false,
-    chemistry: true,
-    maths: false,
-  });
-
   // Load prefs
   useEffect(() => {
     try {
@@ -319,21 +312,6 @@ export default function Dashboard({ user, onLogout }) {
     show: { y: 0, opacity: 1, transition: { duration: 0.35 } },
   };
 
-  // Progress helper component (inline bars)
-  function ProgressBar({ label, value, tint }) {
-    return (
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-[12px] text-slate-600">
-          <span>{label}</span>
-          <span className="font-medium text-slate-900">{value}%</span>
-        </div>
-        <div className="h-2 w-full rounded-full bg-slate-100">
-          <div className={`h-2 rounded-full ${tint}`} style={{ width: `${value}%` }} />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <section className="relative min-h-screen overflow-hidden">
       {/* Background */}
@@ -476,7 +454,7 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
               </aside>
 
-              {/* Center column (redesigned) */}
+              {/* Center column (updated) */}
               <main className="space-y-5 lg:space-y-6">
                 {/* Welcome + inline stats */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
@@ -519,7 +497,7 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </motion.div>
 
-                {/* New: Quick Actions grid */}
+                {/* Quick Actions grid */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
                   {[{
                     title: 'Start PYQs', icon: BookOpen, action: () => openFlow('pyq'), tint: 'from-sky-200/40'
@@ -540,83 +518,6 @@ export default function Dashboard({ user, onLogout }) {
                       </div>
                     </button>
                   ))}
-                </motion.div>
-
-                {/* New: Today's Plan + Progress Overview */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-1 xl:grid-cols-2 gap-3.5">
-                  {/* Today plan */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
-                    <div className="absolute -left-10 -top-10 h-20 w-20 bg-emerald-300/20 rounded-full blur-2xl" />
-                    <div className="relative z-10">
-                      <div className="text-[15px] font-semibold text-slate-900">Your day at a glance</div>
-                      <div className="mt-1 text-[12px] text-slate-600">Keep your streak going · 12-day streak</div>
-                      <div className="mt-3 space-y-2">
-                        {[{ key:'physics', label:'Solve 25 Physics PYQs' }, { key:'chemistry', label:'Revise Organic Chemistry' }, { key:'maths', label:'Attempt Maths Mock (1 hr)' }].map(item => (
-                          <label key={item.key} className="flex items-center gap-3 p-2 rounded-lg ring-1 ring-slate-200 hover:bg-sky-50/40 cursor-pointer select-none">
-                            <input
-                              type="checkbox"
-                              checked={todayTasks[item.key]}
-                              onChange={(e) => setTodayTasks(prev => ({ ...prev, [item.key]: e.target.checked }))}
-                              className="h-4 w-4"
-                            />
-                            <span className={`text-[13px] ${todayTasks[item.key] ? 'line-through text-slate-500' : 'text-slate-800'}`}>{item.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Progress overview */}
-                  <div className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
-                    <div className="absolute -right-10 -bottom-10 h-24 w-24 bg-sky-300/20 rounded-full blur-2xl" />
-                    <div className="relative z-10">
-                      <div className="text-[15px] font-semibold text-slate-900">Progress overview</div>
-                      <div className="mt-3 space-y-3">
-                        <ProgressBar label="Accuracy" value={82} tint="bg-sky-500" />
-                        <ProgressBar label="Syllabus completion" value={61} tint="bg-emerald-500" />
-                        <ProgressBar label="Consistency" value={74} tint="bg-indigo-500" />
-                      </div>
-                      <div className="mt-3 grid grid-cols-3 gap-2">
-                        {[
-                          { title: 'This week', value: '6h 10m' },
-                          { title: 'Mocks', value: '3 taken' },
-                          { title: 'PYQs', value: '462 solved' },
-                        ].map((b, idx) => (
-                          <div key={idx} className="rounded-xl ring-1 ring-slate-200 bg-white p-3 text-center">
-                            <div className="text-[11px] text-slate-500">{b.title}</div>
-                            <div className="text-[15px] font-semibold text-slate-900">{b.value}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* New: Recent activity */}
-                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
-                  <div className="absolute -left-10 -bottom-10 h-24 w-24 bg-emerald-300/20 rounded-full blur-2xl" />
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-[15px] font-semibold text-slate-900">Recent activity</h3>
-                      <button onClick={() => navigate('/activity')} className="text-[12px] text-sky-700 underline decoration-sky-200">View details</button>
-                    </div>
-                    <ul className="mt-2 divide-y divide-slate-200">
-                      {[
-                        { title: 'Full Mock – JEE Main', meta: 'Scored 178/300 · 1h 30m' },
-                        { title: 'PYQs – Physics (Kinematics)', meta: '20 questions · 85% accuracy' },
-                        { title: 'PYQs – Chemistry (Organic Basics)', meta: '15 questions · 73% accuracy' },
-                        { title: 'Roadmap updated', meta: 'Focus: Maths & Physics for 4 weeks' },
-                      ].map((it, idx) => (
-                        <li key={idx} className="py-2.5 flex items-start justify-between">
-                          <div>
-                            <div className="text-[13px] font-medium text-slate-900">{it.title}</div>
-                            <div className="text-[11px] text-slate-500">{it.meta}</div>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-slate-400" />
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
                 </motion.div>
 
                 {/* Mentor carousel remains */}
