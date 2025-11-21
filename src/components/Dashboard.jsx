@@ -42,6 +42,16 @@ const CLASS_LEVELS = [
   { id: "dropper", label: "Dropper" },
 ];
 
+// Per-exam default stats (mocked for demo)
+const EXAM_DEFAULTS = {
+  "jee-main": { accuracy: "82%", avgScore: "178", questions: "462" },
+  "jee-adv": { accuracy: "74%", avgScore: "142", questions: "389" },
+  bitsat: { accuracy: "68%", avgScore: "293", questions: "510" },
+  cbse: { accuracy: "88%", avgScore: "91%", questions: "612" },
+  eamcet: { accuracy: "71%", avgScore: "132", questions: "328" },
+  viteee: { accuracy: "76%", avgScore: "114", questions: "271" },
+};
+
 // Expanded: upcoming entrance deadlines (dummy data)
 const DEADLINES = [
   { name: "IIT JEE Main (Session 2)", date: "Mar 12, 2025", url: "https://jeemain.nta.nic.in/" },
@@ -85,6 +95,9 @@ export default function Dashboard({ user, onLogout }) {
   const [roadmapModalOpen, setRoadmapModalOpen] = useState(false);
   const [roadmapWeeks, setRoadmapWeeks] = useState(4);
   const [roadmapFocus, setRoadmapFocus] = useState({ math: true, physics: true, chemistry: true });
+
+  // Per-exam dashboard stats
+  const [dashStats, setDashStats] = useState({ accuracy: "-", avgScore: "-", questions: "-" });
 
   // Load prefs
   useEffect(() => {
@@ -130,6 +143,28 @@ export default function Dashboard({ user, onLogout }) {
       url.hash = `#${selectedExam}`;
       window.history.replaceState(null, "", url);
     }
+  }, [selectedExam]);
+
+  // When selectedExam changes, load/save per-exam dashboard data
+  useEffect(() => {
+    if (!selectedExam) return;
+    const key = `examsaathi:dash:${selectedExam}`;
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.stats) {
+          setDashStats(parsed.stats);
+          return;
+        }
+      }
+    } catch {}
+    // Fallback to defaults and persist for this exam
+    const defaults = EXAM_DEFAULTS[selectedExam] || { accuracy: "--", avgScore: "--", questions: "--" };
+    setDashStats(defaults);
+    try {
+      localStorage.setItem(key, JSON.stringify({ stats: defaults }));
+    } catch {}
   }, [selectedExam]);
 
   // URL sync: mode -> query
@@ -194,7 +229,6 @@ export default function Dashboard({ user, onLogout }) {
     navigate(`/pyq/start?${qs.toString()}`);
   }
 
-  // Missing helpers implemented below
   function openFlow(type) {
     setFlowType(type);
     setFlowStep(1);
@@ -244,45 +278,55 @@ export default function Dashboard({ user, onLogout }) {
         </svg>
       </div>
 
-      {/* Top bar */}
+      {/* Top bar (navbar with centered exam selector) */}
       <div className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/70">
         <div className="relative">
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-300/50 to-transparent" />
         </div>
-        <div className="w-full h-12 flex items-center justify-between px-3 sm:px-4">
-          <div className="flex items-center gap-3 w-full">
-            <div className="relative h-8 w-8 rounded-md bg-white ring-1 ring-slate-200 grid place-items-center shadow-sm">
-              <Layers className="h-4 w-4 text-sky-700" />
-              <span className="pointer-events-none absolute -inset-1 rounded-md bg-sky-400/10 blur-md" />
+        <div className="w-full h-14 flex items-center px-3 sm:px-4">
+          <div className="w-full grid grid-cols-3 items-center gap-2">
+            {/* Left: brand */}
+            <div className="flex items-center gap-3">
+              <div className="relative h-9 w-9 rounded-md bg-white ring-1 ring-slate-200 grid place-items-center shadow-sm">
+                <Layers className="h-4.5 w-4.5 text-sky-700" />
+                <span className="pointer-events-none absolute -inset-1 rounded-md bg-sky-400/10 blur-md" />
+              </div>
+              <div className="text-[15px] font-semibold text-slate-900">ExamSaathi</div>
             </div>
-            <div className="text-[15px] font-semibold text-slate-900">ExamSaathi</div>
-            <div className="ml-2">
-              <select
-                value={selectedExam || ""}
-                onChange={(e) => setSelectedExam(e.target.value)}
-                className="text-[13px] rounded-md ring-1 ring-slate-200 bg-white px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300"
+
+            {/* Center: BIG exam selector */}
+            <div className="flex items-center justify-center">
+              <div className="w-full max-w-md">
+                <label className="sr-only">Selected exam</label>
+                <select
+                  value={selectedExam || ""}
+                  onChange={(e) => setSelectedExam(e.target.value)}
+                  className="w-full text-[15px] sm:text-[16px] rounded-xl ring-1 ring-slate-300 bg-white px-3.5 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-300 shadow-sm"
+                >
+                  {!selectedExam ? <option value="" disabled>Select exam</option> : null}
+                  {EXAMS.map((ex) => (
+                    <option key={ex.id} value={ex.id}>{ex.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Right: actions */}
+            <div className="hidden md:flex items-center justify-end gap-2.5">
+              <button className="h-9 w-9 rounded-md bg-white ring-1 ring-slate-200 text-slate-600 hover:bg-slate-50 grid place-items-center">
+                <Bell className="h-4 w-4" />
+              </button>
+              <div className="hidden sm:flex items-center gap-2 text-[12px] text-slate-600">
+                <Info className="h-4 w-4 text-slate-500" />
+                <span>Personalized for {CLASS_LEVELS.find((c) => c.id === classLevel)?.label}</span>
+              </div>
+              <button
+                onClick={onLogout}
+                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-[12px] font-medium text-white bg-gradient-to-r from-sky-600 to-emerald-600 hover:from-sky-700 hover:to-emerald-700 shadow-sm"
               >
-                {!selectedExam ? <option value="" disabled>Select exam</option> : null}
-                {EXAMS.map((ex) => (
-                  <option key={ex.id} value={ex.id}>{ex.label}</option>
-                ))}
-              </select>
+                <LogOut className="h-4 w-4" /> Logout
+              </button>
             </div>
-          </div>
-          <div className="hidden md:flex items-center gap-2.5">
-            <button className="h-8 w-8 rounded-md bg-white ring-1 ring-slate-200 text-slate-600 hover:bg-slate-50 grid place-items-center">
-              <Bell className="h-4 w-4" />
-            </button>
-            <div className="hidden sm:flex items-center gap-2 text-[12px] text-slate-600">
-              <Info className="h-4 w-4 text-slate-500" />
-              <span>Personalized for {CLASS_LEVELS.find((c) => c.id === classLevel)?.label}</span>
-            </div>
-            <button
-              onClick={onLogout}
-              className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-[12px] font-medium text-white bg-gradient-to-r from-sky-600 to-emerald-600 hover:from-sky-700 hover:to-emerald-700 shadow-sm"
-            >
-              <LogOut className="h-4 w-4" /> Logout
-            </button>
           </div>
         </div>
       </div>
@@ -373,34 +417,22 @@ export default function Dashboard({ user, onLogout }) {
 
               {/* Center column (updated) */}
               <main className="space-y-5 lg:space-y-6">
-                {/* Welcome + inline stats */}
+                {/* Welcome + inline stats (exam selector removed) */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 sm:p-6 shadow-sm overflow-hidden">
                   <div className="absolute -right-10 -top-10 h-32 w-32 bg-sky-300/10 rounded-full blur-2xl" />
                   <div className="absolute -left-10 -bottom-10 h-32 w-32 bg-emerald-300/10 rounded-full blur-2xl" />
                   <div className="relative z-10 grid grid-cols-1 gap-3">
                     <div>
-                      <div className="text-[17px] sm:text-[19px] font-semibold text-slate-900">Welcome back, {"Demo Student"}</div>
-                      <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center gap-3">
-                        <label className="text-[13px] text-slate-600">Select exam</label>
-                        <select
-                          value={selectedExam || ""}
-                          onChange={(e) => setSelectedExam(e.target.value)}
-                          className="text-[13px] rounded-md ring-1 ring-slate-200 bg-white px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 w-full sm:w-64"
-                        >
-                          {!selectedExam ? <option value="" disabled>Select exam</option> : null}
-                          {EXAMS.map((ex) => (
-                            <option key={ex.id} value={ex.id}>{ex.label}</option>
-                          ))}
-                        </select>
-                      </div>
+                      <div className="text-[17px] sm:text-[19px] font-semibold text-slate-900">Welcome back, {user?.name || "Demo Student"}</div>
+                      <div className="mt-1 text-[13px] text-slate-600">You're viewing your {examLabel} dashboard.</div>
                     </div>
 
-                    {/* Compact inline stats */}
+                    {/* Compact inline stats - exam specific */}
                     <div className="mt-1 grid grid-cols-3 gap-2.5">
                       {[
-                        { title: 'Accuracy', value: '82%' },
-                        { title: 'Avg Score', value: '178' },
-                        { title: 'Questions', value: '462' },
+                        { title: 'Accuracy', value: dashStats.accuracy },
+                        { title: 'Avg Score', value: dashStats.avgScore },
+                        { title: 'Questions', value: dashStats.questions },
                       ].map((kpi, idx) => (
                         <div key={idx} className="relative rounded-xl bg-white ring-1 ring-slate-200 p-3 shadow-sm overflow-hidden">
                           <div className="absolute -right-6 -top-6 h-14 w-14 bg-sky-200/20 rounded-full blur-xl" />
