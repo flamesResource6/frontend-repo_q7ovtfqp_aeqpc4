@@ -8,6 +8,7 @@ import PracticeScreen from './pages/PracticeScreen'
 import MockTestConfig from './pages/MockTestConfig'
 import MockTestRunner from './pages/MockTestRunner'
 import MockTestResult from './pages/MockTestResult'
+import PyqRunner from './pages/PyqRunner'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/" element={<App />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/practice" element={<PracticeScreen />} />
+        <Route path="/pyq/start" element={<PyqRunner />} />
         <Route path="/mock/config" element={<MockTestConfig />} />
         <Route path="/mock/start" element={<MockTestRunner />} />
         <Route path="/mock/result" element={<MockTestResult />} />

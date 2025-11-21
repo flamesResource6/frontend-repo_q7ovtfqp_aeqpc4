@@ -86,9 +86,6 @@ export default function Dashboard({ user, onLogout }) {
   const [roadmapWeeks, setRoadmapWeeks] = useState(4);
   const [roadmapFocus, setRoadmapFocus] = useState({ math: true, physics: true, chemistry: true });
 
-  // New: subject selection for quick "Start Solving PYQs" section
-  const [practiceSubjects, setPracticeSubjects] = useState({ physics: false, chemistry: false, math: false });
-
   // Load prefs
   useEffect(() => {
     try {
@@ -167,130 +164,6 @@ export default function Dashboard({ user, onLogout }) {
     [selectedExam]
   );
 
-  // Derived: last 10 years list
-  const yearsList = useMemo(() => {
-    const now = new Date().getFullYear();
-    return Array.from({ length: 10 }, (_, i) => now - i);
-  }, []);
-
-  // Sidebar items
-  const sidebarItems = [
-    { id: "home", label: "Overview", icon: Home, action: () => {} },
-    { id: "pyqs", label: "PYQs", icon: Library, action: () => setMode("pyq") },
-    { id: "mocks", label: "Mock Tests", icon: FileText, action: () => setMode("mock") },
-    { id: "mentor", label: "Mentor", icon: User, action: () => window.open("https://airtable.com", "_blank") },
-    { id: "predictor", label: "Predictor", icon: BarChart3, locked: true },
-    { id: "counsel", label: "Counseling", icon: GraduationCap, locked: true },
-    { id: "settings", label: "Settings", icon: Settings, action: () => {} },
-    { id: "logout", label: "Logout", icon: LogOut, action: () => onLogout?.() },
-  ];
-
-  // Helpers
-  function openFlow(type) {
-    if (!selectedExam) {
-      setShowExamPicker(true);
-      return;
-    }
-    setMode(type);
-    setFlowType(type);
-    setYears(null);
-    setScope(null);
-    setFlowStep(1);
-    setFlowModalOpen(true);
-  }
-
-  // Open PYQ scope for a specific selected year only (range shortcuts removed)
-  function openPyqScore() {
-    if (!selectedExam) {
-      setShowExamPicker(true);
-      return;
-    }
-    if (!selectedYear) {
-      // require year selection before proceeding
-      return;
-    }
-    setMode('pyq');
-    setFlowType('pyq');
-    setYears(null);
-    setScope(null);
-    setFlowStep(2); // jump to scope selection
-    setFlowModalOpen(true);
-  }
-
-  function goToSelection(selScope) {
-    if (!selectedExam || !flowType) return;
-
-    const params = new URLSearchParams({ exam: selectedExam, scope: selScope });
-    if (flowType === 'pyq') {
-      // require a specific year
-      if (!selectedYear) return;
-      params.set('year', String(selectedYear));
-      navigate(`/practice?${params.toString()}`);
-    } else {
-      // mock flow
-      if (!years) params.set('years', '1'); // default if not chosen
-      navigate(`/mock/config?${params.toString()}`);
-    }
-    closeFlow();
-  }
-
-  function closeFlow() {
-    setFlowModalOpen(false);
-    setFlowType(null);
-    setFlowStep(1);
-    setYears(null);
-    setSelectedYear(null);
-    setScope(null);
-  }
-
-  function copyInvite() {
-    try {
-      navigator.clipboard.writeText(
-        `${window.location.origin}/?ref=${encodeURIComponent(user?.phone || 'friend')}`
-      );
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {}
-  }
-
-  // Roadmap helpers
-  function openRoadmap() {
-    if (!selectedExam) {
-      setShowExamPicker(true);
-      return;
-    }
-    setRoadmapModalOpen(true);
-  }
-  function buildRoadmap() {
-    const focus = Object.entries(roadmapFocus)
-      .filter(([, v]) => v)
-      .map(([k]) => k)
-      .join(',');
-    const qs = new URLSearchParams({ exam: selectedExam || '', weeks: String(roadmapWeeks), focus });
-    setRoadmapModalOpen(false);
-    navigate(`/roadmap?${qs.toString()}`);
-  }
-
-  // Practice section helpers
-  const allSelected = practiceSubjects.physics && practiceSubjects.chemistry && practiceSubjects.math;
-  function toggleSubject(key) {
-    setPracticeSubjects((prev) => ({ ...prev, [key]: !prev[key] }));
-  }
-  function selectAllPCM(val) {
-    setPracticeSubjects({ physics: val, chemistry: val, math: val });
-  }
-  function startPracticeFromSection() {
-    if (!selectedExam) {
-      setShowExamPicker(true);
-      return;
-    }
-    const selected = Object.entries(practiceSubjects).filter(([, v]) => v).map(([k]) => k);
-    const scopeParam = selected.length === 3 ? 'full' : selected.join(',');
-    if (selected.length === 0) return; // require at least one
-    const params = new URLSearchParams({ exam: selectedExam, scope: scopeParam });
-    navigate(`/practice?${params.toString()}`);
-  }
-
   // Sort deadlines by nearest upcoming date
   const sortedDeadlines = useMemo(() => {
     const today = new Date();
@@ -311,6 +184,15 @@ export default function Dashboard({ user, onLogout }) {
     hidden: { y: 10, opacity: 0 },
     show: { y: 0, opacity: 1, transition: { duration: 0.35 } },
   };
+
+  function startPyqScope(scopeId) {
+    if (!selectedExam) {
+      setShowExamPicker(true);
+      return;
+    }
+    const qs = new URLSearchParams({ exam: selectedExam, scope: scopeId });
+    navigate(`/pyq/start?${qs.toString()}`);
+  }
 
   return (
     <section className="relative min-h-screen overflow-hidden">
@@ -497,10 +379,31 @@ export default function Dashboard({ user, onLogout }) {
                   </div>
                 </motion.div>
 
+                {/* Dedicated: Solve PYQs card */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative rounded-2xl bg-white ring-1 ring-slate-200 p-5 shadow-sm overflow-hidden">
+                  <div className="absolute -right-10 -bottom-10 h-24 w-24 bg-sky-300/20 rounded-full blur-2xl" />
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="h-9 w-9 rounded-xl bg-sky-100 ring-1 ring-sky-200 grid place-items-center">
+                          <BookOpen className="h-5 w-5 text-sky-700" />
+                        </div>
+                        <h3 className="text-[16px] font-semibold text-slate-900">Solve Previous Year Questions</h3>
+                      </div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      <button onClick={() => startPyqScope('full')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">All subjects (PCM)</button>
+                      <button onClick={() => startPyqScope('physics')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">Physics</button>
+                      <button onClick={() => startPyqScope('chemistry')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">Chemistry</button>
+                      <button onClick={() => startPyqScope('math')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">Maths</button>
+                    </div>
+                  </div>
+                </motion.div>
+
                 {/* Quick Actions grid */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
                   {[{
-                    title: 'Start PYQs', icon: BookOpen, action: () => openFlow('pyq'), tint: 'from-sky-200/40'
+                    title: 'Start PYQs', icon: BookOpen, action: () => startPyqScope('full'), tint: 'from-sky-200/40'
                   },{
                     title: 'Full Mock', icon: FileText, action: () => openFlow('mock'), tint: 'from-emerald-200/40'
                   },{
@@ -604,7 +507,7 @@ export default function Dashboard({ user, onLogout }) {
                           </div>
                         </div>
                         {/* Card 4 */}
-                        <div className="rounded-xl ring-1 ring-slate-200 bg-white p-3">
+                        <div className="rounded-xl ring-1 ring-1 ring-slate-200 bg-white p-3">
                           <div className="flex items-start gap-2">
                             <Star className="h-4 w-4 text-amber-500 shrink-0" />
                             <div>
@@ -630,7 +533,7 @@ export default function Dashboard({ user, onLogout }) {
             <Home className="h-5 w-5" />
             <span>Home</span>
           </button>
-          <button onClick={() => openFlow('pyq')} className="py-2.5 text-[12px] flex flex-col items-center text-slate-700">
+          <button onClick={() => startPyqScope('full')} className="py-2.5 text-[12px] flex flex-col items-center text-slate-700">
             <BookOpen className="h-5 w-5" />
             <span>PYQs</span>
           </button>
@@ -684,7 +587,7 @@ export default function Dashboard({ user, onLogout }) {
         )}
       </AnimatePresence>
 
-      {/* Flow Modal: scope for selected year (ranges removed for PYQ) */}
+      {/* Flow Modal (Mock) */}
       <AnimatePresence>
         {flowModalOpen && (
           <motion.div
@@ -701,84 +604,35 @@ export default function Dashboard({ user, onLogout }) {
               className="w-full max-w-md rounded-2xl bg-white ring-1 ring-slate-200 shadow-xl overflow-hidden"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-                <div className="text-sm font-semibold text-slate-900">{flowType === 'mock' ? 'Mock Papers' : 'Previous Year Questions'}</div>
-                <button onClick={closeFlow} className="h-8 w-8 grid place-items-center rounded-md hover:bg-slate-50">
+                <div className="text-sm font-semibold text-slate-900">Mock Papers</div>
+                <button onClick={() => { setFlowModalOpen(false); setFlowType(null); }} className="h-8 w-8 grid place-items-center rounded-md hover:bg-slate-50">
                   <X className="h-4 w-4 text-slate-500" />
                 </button>
               </div>
 
-              {/* Step 1 (ranges) only for mock now */}
-              {flowType === 'mock' && flowStep === 1 && (
-                <div className="p-4">
-                  <div className="text-[14px] text-slate-700 font-medium">Select year range</div>
-                  <div className="mt-3 grid grid-cols-4 gap-2">
-                    {[1,3,5,10].map((y) => (
-                      <button key={y} onClick={() => { setYears(y); setFlowStep(2); }} className={`px-3 py-2 rounded-lg text-[14px] ring-1 transition ${years===y? 'bg-slate-900 text-white ring-slate-900':'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}>
-                        {y} yr{y>1?'s':''}
-                      </button>
-                    ))}
-                  </div>
+              {/* Step 1 (ranges) */}
+              <div className="p-4">
+                <div className="text-[14px] text-slate-700 font-medium">Select year range</div>
+                <div className="mt-3 grid grid-cols-4 gap-2">
+                  {[1,3,5,10].map((y) => (
+                    <button key={y} onClick={() => { setYears(y); }} className={`px-3 py-2 rounded-lg text-[14px] ring-1 transition ${years===y? 'bg-slate-900 text-white ring-slate-900':'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}>
+                      {y} yr{y>1?'s':''}
+                    </button>
+                  ))}
                 </div>
-              )}
-
-              {/* Step 2: scope selection */}
-              {flowStep === 2 && (
-                <div className="p-4">
-                  <div className="text-[14px] text-slate-700 font-medium">Choose scope</div>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    {[{id:'full',label:'Full Paper'},{id:'math',label:'Maths'},{id:'physics',label:'Physics'},{id:'chemistry',label:'Chemistry'}].map((opt) => (
-                      <button key={opt.id} onClick={() => goToSelection(opt.id)} className="px-3 py-2 rounded-lg text-[14px] ring-1 bg-white text-slate-800 ring-slate-200 hover:bg-sky-50">
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-4 flex items-center justify-between text-[13px] text-slate-600">
-                    {flowType === 'mock' && flowStep === 2 ? (
-                      <button onClick={() => setFlowStep(1)} className="underline decoration-slate-300 hover:text-slate-900">Back</button>
-                    ) : <span />}
-                    <div className="text-slate-500">
-                      {flowType === 'pyq' && selectedYear ? `Year ${selectedYear}` : flowType === 'mock' && years ? `${years} ${years>1?'years':'year'} selected` : ''}
-                    </div>
-                  </div>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  {[{id:'full',label:'Full Paper'},{id:'math',label:'Maths'},{id:'physics',label:'Physics'},{id:'chemistry',label:'Chemistry'}].map((opt) => (
+                    <button key={opt.id} onClick={() => {
+                      const params = new URLSearchParams({ exam: selectedExam || '', scope: opt.id });
+                      if (years) params.set('years', String(years));
+                      if (!selectedExam) { setShowExamPicker(true); return; }
+                      navigate(`/mock/config?${params.toString()}`);
+                      setFlowModalOpen(false);
+                    }} className="px-3 py-2 rounded-lg text-[14px] ring-1 bg-white text-slate-800 ring-slate-200 hover:bg-sky-50">
+                      {opt.label}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Roadmap Modal */}
-      <AnimatePresence>
-        {roadmapModalOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm grid place-items-center p-4">
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} transition={{ duration: 0.2 }} className="w-full max-w-md rounded-2xl bg-white ring-1 ring-slate-200 shadow-xl overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-                <div className="text-sm font-semibold text-slate-900">Build your revision roadmap</div>
-                <button onClick={() => setRoadmapModalOpen(false)} className="h-8 w-8 grid place-items-center rounded-md hover:bg-slate-50"><X className="h-4 w-4 text-slate-500" /></button>
-              </div>
-              <div className="p-4 space-y-4">
-                <div>
-                  <label className="text-[13px] text-slate-700">Duration (weeks)</label>
-                  <select value={roadmapWeeks} onChange={(e) => setRoadmapWeeks(Number(e.target.value))} className="mt-1 w-full rounded-md ring-1 ring-slate-200 px-3 py-2 text-[13px]">
-                    {[2,4,6,8,12].map(w => <option key={w} value={w}>{w} weeks</option>)}
-                  </select>
-                </div>
-                <div>
-                  <div className="text-[13px] text-slate-700">Focus areas</div>
-                  <div className="mt-2 grid grid-cols-3 gap-2">
-                    {[
-                      { id:'math', label:'Maths' },
-                      { id:'physics', label:'Physics' },
-                      { id:'chemistry', label:'Chemistry' },
-                    ].map(opt => (
-                      <label key={opt.id} className="inline-flex items-center gap-2 text-[13px]">
-                        <input type="checkbox" checked={roadmapFocus[opt.id]} onChange={(e) => setRoadmapFocus(prev => ({ ...prev, [opt.id]: e.target.checked }))} />
-                        <span>{opt.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <button onClick={buildRoadmap} className="w-full px-4 py-2 rounded-md text-[13px] font-semibold bg-gradient-to-r from-sky-600 to-emerald-600 text-white hover:from-sky-700 hover:to-emerald-700 shadow-sm">Generate Roadmap</button>
               </div>
             </motion.div>
           </motion.div>
