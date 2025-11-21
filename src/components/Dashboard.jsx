@@ -194,6 +194,41 @@ export default function Dashboard({ user, onLogout }) {
     navigate(`/pyq/start?${qs.toString()}`);
   }
 
+  // Missing helpers implemented below
+  function openFlow(type) {
+    setFlowType(type);
+    setFlowStep(1);
+    setYears(null);
+    setFlowModalOpen(true);
+  }
+
+  function openRoadmap() {
+    setRoadmapModalOpen(true);
+  }
+
+  async function copyInvite() {
+    try {
+      const url = window.location.origin;
+      await navigator.clipboard.writeText(`${url}?ref=invite`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (e) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  }
+
+  const sidebarItems = [
+    { id: "home", label: "Overview", icon: Home, action: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+    { id: "pyq", label: "Previous Year Qs", icon: BookOpen, action: () => startPyqScope('full') },
+    { id: "mock", label: "Full Mocks", icon: FileText, action: () => openFlow('mock') },
+    { id: "analysis", label: "Performance", icon: BarChart3, action: () => window.alert('Performance analytics coming soon!') },
+    { id: "library", label: "Resources", icon: Library, action: () => window.open('https://ncert.nic.in/textbook.php', '_blank') },
+    { id: "mentor", label: "Mentorship", icon: GraduationCap, action: () => window.open('https://airtable.com', '_blank') },
+    { id: "goals", label: "Goals", icon: Target, action: () => openRoadmap() },
+    { id: "settings", label: "Settings", icon: Settings, action: () => window.alert('Profile & settings coming soon!') },
+  ];
+
   return (
     <section className="relative min-h-screen overflow-hidden">
       {/* Background */}
