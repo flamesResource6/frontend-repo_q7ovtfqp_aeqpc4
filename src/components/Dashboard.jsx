@@ -52,6 +52,52 @@ const EXAM_DEFAULTS = {
   viteee: { accuracy: "76%", avgScore: "114", questions: "271" },
 };
 
+// Topics (mock) for subjects
+const TOPICS = {
+  physics: [
+    "Kinematics",
+    "Laws of Motion",
+    "Work, Energy & Power",
+    "Rotational Dynamics",
+    "Thermodynamics",
+    "Waves & Sound",
+    "Electrostatics",
+    "Current Electricity",
+    "Magnetism",
+    "Optics",
+    "Modern Physics",
+  ],
+  chemistry: [
+    "Some Basic Concepts of Chemistry",
+    "Atomic Structure",
+    "Chemical Bonding",
+    "Thermodynamics",
+    "Equilibrium",
+    "Redox Reactions",
+    "s-Block Elements",
+    "p-Block Elements",
+    "d- and f-Block Elements",
+    "Organic Nomenclature",
+    "Hydrocarbons",
+    "Biomolecules",
+  ],
+  math: [
+    "Sets & Relations",
+    "Functions",
+    "Quadratic Equations",
+    "Sequences & Series",
+    "Binomial Theorem",
+    "Coordinate Geometry",
+    "Limits & Continuity",
+    "Differentiation",
+    "Integration",
+    "Differential Equations",
+    "Vectors",
+    "3D Geometry",
+    "Probability",
+  ],
+};
+
 // Expanded: upcoming entrance deadlines (dummy data)
 const DEADLINES = [
   { name: "IIT JEE Main (Session 2)", date: "Mar 12, 2025", url: "https://jeemain.nta.nic.in/" },
@@ -84,13 +130,20 @@ export default function Dashboard({ user, onLogout }) {
   const [showExamPicker, setShowExamPicker] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Modal states
+  // Modal states - Mock
   const [flowModalOpen, setFlowModalOpen] = useState(false);
   const [flowType, setFlowType] = useState(/** @type {"mock"|"pyq"|null} */(null));
   const [flowStep, setFlowStep] = useState(1); // 1: years, 2: scope
   const [years, setYears] = useState(/** @type {1|3|5|10|null} */(null));
   const [selectedYear, setSelectedYear] = useState(/** @type {number|null} */(null));
   const [scope, setScope] = useState(/** @type {"full"|"math"|"physics"|"chemistry"|null} */(null));
+
+  // Modal states - PYQ flow
+  const [pyqOpen, setPyqOpen] = useState(false);
+  const [pyqStep, setPyqStep] = useState(1); // 1: years, 2: topics
+  const [pyqSubject, setPyqSubject] = useState(/** @type {"physics"|"chemistry"|"math"|null} */(null));
+  const [pyqYears, setPyqYears] = useState(/** @type {1|3|5|10|null} */(null));
+  const [pyqTopics, setPyqTopics] = useState([]);
 
   const [roadmapModalOpen, setRoadmapModalOpen] = useState(false);
   const [roadmapWeeks, setRoadmapWeeks] = useState(4);
@@ -262,6 +315,33 @@ export default function Dashboard({ user, onLogout }) {
     { id: "goals", label: "Goals", icon: Target, action: () => openRoadmap() },
     { id: "settings", label: "Settings", icon: Settings, action: () => window.alert('Profile & settings coming soon!') },
   ];
+
+  // PYQ flow helpers
+  function openPyq(subject) {
+    if (!selectedExam) {
+      setShowExamPicker(true);
+      return;
+    }
+    setPyqSubject(subject);
+    setPyqYears(null);
+    setPyqTopics([]);
+    setPyqStep(1);
+    setPyqOpen(true);
+  }
+  function toggleTopic(topic) {
+    setPyqTopics((prev) => prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic]);
+  }
+  function confirmPyq() {
+    if (!selectedExam || !pyqSubject || !pyqYears) return;
+    const params = new URLSearchParams({
+      exam: selectedExam,
+      subject: pyqSubject,
+      years: String(pyqYears),
+    });
+    if (pyqTopics.length) params.set('topics', pyqTopics.join(','));
+    setPyqOpen(false);
+    navigate(`/pyq/start?${params.toString()}`);
+  }
 
   return (
     <section className="relative min-h-screen overflow-hidden">
@@ -460,9 +540,9 @@ export default function Dashboard({ user, onLogout }) {
                     </div>
                     <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                       <button onClick={() => startPyqScope('full')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">All subjects (PCM)</button>
-                      <button onClick={() => startPyqScope('physics')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">Physics</button>
-                      <button onClick={() => startPyqScope('chemistry')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">Chemistry</button>
-                      <button onClick={() => startPyqScope('math')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">Maths</button>
+                      <button onClick={() => openPyq('physics')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">Physics</button>
+                      <button onClick={() => openPyq('chemistry')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">Chemistry</button>
+                      <button onClick={() => openPyq('math')} className="px-3 py-2 rounded-xl ring-1 ring-slate-200 bg-white hover:bg-sky-50 text-[13px] font-medium text-slate-800">Maths</button>
                     </div>
                   </div>
                 </motion.div>
@@ -701,6 +781,83 @@ export default function Dashboard({ user, onLogout }) {
                   ))}
                 </div>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* PYQ Flow Modal (two-step) */}
+      <AnimatePresence>
+        {pyqOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm grid place-items-center p-4"
+          >
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-xl rounded-2xl bg-white ring-1 ring-slate-200 shadow-xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                <div className="text-sm font-semibold text-slate-900">PYQ • {pyqSubject ? pyqSubject[0].toUpperCase()+pyqSubject.slice(1) : ''}</div>
+                <button onClick={() => setPyqOpen(false)} className="h-8 w-8 grid place-items-center rounded-md hover:bg-slate-50">
+                  <X className="h-4 w-4 text-slate-500" />
+                </button>
+              </div>
+
+              {/* Step 1: Years */}
+              {pyqStep === 1 && (
+                <div className="p-4">
+                  <div className="text-[14px] text-slate-700 font-medium">Select range</div>
+                  <div className="mt-3 grid grid-cols-4 gap-2">
+                    {[1,3,5,10].map((y) => (
+                      <button key={y} onClick={() => setPyqYears(y)} className={`px-3 py-2 rounded-lg text-[14px] ring-1 transition ${pyqYears===y? 'bg-slate-900 text-white ring-slate-900':'bg-white text-slate-800 ring-slate-200 hover:bg-sky-50'}`}>
+                        Last {y} year{y>1?'s':''}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      disabled={!pyqYears}
+                      onClick={() => setPyqStep(2)}
+                      className={`px-4 py-2 rounded-md text-[13px] font-semibold ${pyqYears? 'bg-slate-900 text-white':'bg-slate-200 text-slate-500 cursor-not-allowed'}`}
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Topics multi-select */}
+              {pyqStep === 2 && (
+                <div className="p-4">
+                  <div className="text-[14px] text-slate-700 font-medium">Select topics (optional)</div>
+                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-72 overflow-auto pr-1">
+                    {(TOPICS[pyqSubject || 'physics'] || []).map((topic) => (
+                      <label key={topic} className={`flex items-center gap-2 rounded-lg ring-1 px-3 py-2 text-[13px] cursor-pointer ${pyqTopics.includes(topic)? 'bg-sky-50 ring-sky-300':'bg-white ring-slate-200 hover:bg-slate-50'}`}>
+                        <input
+                          type="checkbox"
+                          checked={pyqTopics.includes(topic)}
+                          onChange={() => toggleTopic(topic)}
+                          className="h-4 w-4 accent-sky-600"
+                        />
+                        <span className="text-slate-800">{topic}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center justify-between">
+                    <button onClick={() => setPyqStep(1)} className="text-[13px] text-slate-600 underline">Back</button>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setPyqTopics([])} className="px-3 py-2 rounded-md text-[12px] ring-1 ring-slate-200">Clear</button>
+                      <button onClick={confirmPyq} className="px-4 py-2 rounded-md text-[13px] font-semibold bg-slate-900 text-white">Start</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
